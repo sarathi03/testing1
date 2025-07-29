@@ -1,0 +1,205 @@
+﻿<UserControl x:Class="testing1.Views.DiscoveryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:testing1.ViewModels"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="900">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="AliceBlue" BorderBrush="#D0D0D0" BorderThickness="0,0,0,1">
+            <Grid Height="40">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Image Grid.Column="0"  Width="16" Height="16" Margin="10,0,5,0"/>
+                <TextBlock Grid.Column="1" Text="Available Devices on Network"
+                           VerticalAlignment="Center" FontSize="15" FontWeight="Bold"/>
+
+                <!-- Open Config Directory Button -->
+                <Button Grid.Column="2" Content="📁 Config Folder" 
+                        Command="{Binding OpenConfigDirectoryCommand}"
+                        Margin="0,0,10,0" Padding="8,4" FontSize="10"
+                        ToolTip="Open device configuration folder"/>
+            </Grid>
+        </Border>
+
+        <!-- Title -->
+        <!--TextBlock Grid.Row="1" Text="Available Devices on Network"
+                   FontSize="16" FontWeight="Bold" Margin="15,5,15,5"/-->
+
+        <!-- Static IP and Subnet Information -->
+        <StackPanel Grid.Row="1" Orientation="Vertical" Margin="20,15,20,15" VerticalAlignment="Bottom">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                <TextBlock Text="Ethernet IP: " FontSize="12" FontWeight="Bold"/>
+                <TextBlock Text="{Binding EthernetIP}" FontSize="12" FontFamily="Consolas" Margin="0,0,10,0"/>
+                <TextBlock Text="Subnet: " FontSize="12" FontWeight="Bold"/>
+                <TextBlock Text="{Binding EthernetSubnet}" FontSize="12" FontFamily="Consolas"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                <TextBlock Text="WiFi IP: " FontSize="12" FontWeight="Bold"/>
+                <TextBlock Text="{Binding WiFiIP}" FontSize="12" FontFamily="Consolas" Margin="0,0,10,0"/>
+                <TextBlock Text="Subnet: " FontSize="12" FontWeight="Bold"/>
+                <TextBlock Text="{Binding WiFiSubnet}" FontSize="12" FontFamily="Consolas"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- IP/Gateway Info, Subnet Scanner Info and Scan Button -->
+        <Border Grid.Row="2" Background="AliceBlue" BorderBrush="White" BorderThickness="1" Margin="15,0,15,10">
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Current IP and Gateway Info (Static) -->
+                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Text="Current IP: " FontWeight="SemiBold" FontSize="12" Margin="0,0,5,0"/>
+                    <TextBlock Text="{Binding CurrentIP}" FontSize="12" FontFamily="Consolas" Margin="0,2,20,0"/>
+                    <TextBlock Text="Gateway: " FontWeight="SemiBold" FontSize="12" Margin="0,0,5,0"/>
+                    <TextBlock Text="{Binding Gateway}" FontSize="12" Margin="0,3,20,0" FontFamily="Consolas"/>
+                </StackPanel>
+
+                <!-- Scan Button with Progress Indicator - Simple Version -->
+                <StackPanel Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right">
+                    <!-- Normal Scan Button -->
+                    <Button Content="Scan Subnet" 
+                            Command="{Binding ScanSubnetCommand}"
+                            Width="120" Height="30">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsScanning}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <!-- Scanning Progress Button -->
+                    <Button Content="Scanning..." 
+                            IsEnabled="False"
+                            Width="120" Height="30"
+                            Background="AliceBlue" Foreground="White">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsScanning}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Device Table -->
+        <Border Grid.Row="3" Margin="15,0,15,15" BorderBrush="#D0D0D0" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Background="#F8F8F8" BorderBrush="#D0D0D0" BorderThickness="0,0,0,1" Height="35">
+                    <CheckBox Content="Select All" Margin="10,0,0,0"
+                              VerticalAlignment="Center" FontWeight="SemiBold"
+                              IsChecked="{Binding SelectAllDevices}"/>
+                </Border>
+
+                <DataGrid Grid.Row="1" ItemsSource="{Binding AvailableDevices}"
+                          AutoGenerateColumns="False" HeadersVisibility="Column"
+                          CanUserAddRows="False" SelectionMode="Extended"
+                          AlternatingRowBackground="#F9F9F9">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Select" Width="60">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!--DataGridTemplateColumn Header="Status" Width="80">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Ellipse Width="8" Height="8" Fill="{Binding StatusColor}" HorizontalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn-->
+
+                        <DataGridTextColumn Header="IP Address" Binding="{Binding IPAddress}" Width="150" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Port" Binding="{Binding Port}" Width="100" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="MAC Address" Binding="{Binding MacAddress}" Width="*" IsReadOnly="True"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- Scanning Overlay for DataGrid -->
+                <Border Grid.Row="1" 
+                        Background="#80FFFFFF">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsScanning}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="🔄 Scanning network for devices..." 
+                                   FontSize="14" FontWeight="SemiBold" 
+                                   Foreground="#4A90E2" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding ScanProgressText}" 
+                                   FontSize="12" 
+                                   Foreground="#666" HorizontalAlignment="Center" 
+                                   Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Bottom Buttons -->
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="15,0,15,15">
+            <!--Button Content="Add All Devices" Command="{Binding AddAllDevicesCommand}"
+                    Background="#28a745" Foreground="White"
+                    Padding="15,8" Margin="0,0,10,0"/-->
+            <Button Content="Add Selected Devices" 
+                    Background="#4A90E2" Foreground="White"
+                    Padding="15,8"
+                    Click="AddSelectedDevices_Click"/>
+            <Button Content="Manage Device"
+                    Background="#3498DB" Foreground="White"
+                    Padding="15,8" Margin="10,0,0,0"
+                    Click="ManageDevice_Click"/>
+        </StackPanel>
+    </Grid>
+
+    <!-- Resources -->
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+</UserControl>
