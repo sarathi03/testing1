@@ -3,155 +3,155 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Device Configuration" Height="600" Width="800"
         WindowStartupLocation="CenterOwner" ResizeMode="CanResize">
-    
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,20">
-            <TextBlock Text="Device Configuration" FontSize="24" FontWeight="Bold" Margin="0,0,0,10"/>
-            <TextBlock Text="Configure RS485 and Ethernet settings for the selected device" FontSize="14" Foreground="Gray"/>
-        </StackPanel>
-
-        <!-- Main Content -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+    <Grid Margin="10">
+        <ScrollViewer VerticalScrollBarVisibility="Hidden">
             <StackPanel>
-                <!-- Device Information -->
-                <GroupBox Header="Device Information" Margin="0,0,0,20">
-                    <Grid Margin="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
 
-                        <TextBlock Text="Device IP:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBox Text="{Binding DeviceIp}" Grid.Column="1" Grid.Row="0" Margin="0,0,20,0" IsReadOnly="True"/>
-                        
-                        <TextBlock Text="MAC Address:" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBox Text="{Binding MACAddress}" Grid.Column="3" Grid.Row="0" IsReadOnly="True"/>
-                    </Grid>
-                </GroupBox>
+                <!-- RS485 Settings -->
 
-                <!-- RS485 Configuration -->
-                <GroupBox Header="RS485 Configuration" Margin="0,0,0,20">
-                    <Grid Margin="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                <TextBlock Text="RS485 Settings" FontWeight="Bold" Margin="0,0,0,5"/>
 
-                        <TextBlock Text="Baud Rate:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <ComboBox Grid.Column="1" Grid.Row="0" Margin="0,0,20,0" SelectedValue="{Binding RS485.BaudRate}">
-                            <ComboBoxItem Content="9600" Tag="9600"/>
-                            <ComboBoxItem Content="19200" Tag="19200"/>
-                            <ComboBoxItem Content="38400" Tag="38400"/>
-                            <ComboBoxItem Content="57600" Tag="57600"/>
-                            <ComboBoxItem Content="115200" Tag="115200"/>
-                        </ComboBox>
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="Baud Rate:" Width="100"/>
+                    <!-- Only ComboBox for Baud Rate -->
+                    <ComboBox SelectedValue="{Binding RS485.BaudRate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+       SelectedValuePath="Content" Width="150">
+                        <ComboBox.Items>
+                            <ComboBoxItem Content="4800"/>
+                            <ComboBoxItem Content="9600"/>
+                            <ComboBoxItem Content="19200"/>
+                            <ComboBoxItem Content="38400"/>
+                            <ComboBoxItem Content="57600"/>
+                            <ComboBoxItem Content="115200"/>
+                        </ComboBox.Items>
+                    </ComboBox>
+                </StackPanel>
 
-                        <TextBlock Text="Parity:" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <ComboBox Grid.Column="3" Grid.Row="0" SelectedValue="{Binding RS485.Parity}">
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="Parity:" Width="100"/>
+                    <ComboBox SelectedValue="{Binding RS485.Parity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+        SelectedValuePath="Tag" Width="150">
+                        <ComboBox.Items>
                             <ComboBoxItem Content="None" Tag="0"/>
-                            <ComboBoxItem Content="Odd" Tag="1"/>
+                            <ComboBoxItem Content="Odd" Tag="3"/>
                             <ComboBoxItem Content="Even" Tag="2"/>
-                        </ComboBox>
+                        </ComboBox.Items>
+                    </ComboBox>
+                </StackPanel>
 
-                        <TextBlock Text="Data Bits:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,10,10,0"/>
-                        <ComboBox Grid.Column="1" Grid.Row="1" Margin="0,10,20,0" SelectedValue="{Binding RS485.DataBit}">
-                            <ComboBoxItem Content="7" Tag="7"/>
-                            <ComboBoxItem Content="8" Tag="8"/>
-                        </ComboBox>
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="DataBit:" Width="100"/>
+                    <ComboBox SelectedValue="{Binding RS485.DataBit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+        SelectedValuePath="Tag" Width="150">
+                        <ComboBox.Items>
+                            <ComboBoxItem Content="5" Tag="0"/>
+                            <ComboBoxItem Content="6" Tag="1"/>
+                            <ComboBoxItem Content="7" Tag="2"/>
+                            <ComboBoxItem Content="8" Tag="3"/>
+                        </ComboBox.Items>
+                    </ComboBox>
+                </StackPanel>
 
-                        <TextBlock Text="Stop Bits:" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Margin="0,10,10,0"/>
-                        <ComboBox Grid.Column="3" Grid.Row="1" Margin="0,10,0,0" SelectedValue="{Binding RS485.StopBit}">
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="StopBit:" Width="100"/>
+                    <ComboBox SelectedValue="{Binding RS485.StopBit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+        SelectedValuePath="Tag" Width="150">
+                        <ComboBox.Items>
                             <ComboBoxItem Content="1" Tag="1"/>
-                            <ComboBoxItem Content="2" Tag="2"/>
-                        </ComboBox>
+                            <ComboBoxItem Content="1.5" Tag="2"/>
+                            <ComboBoxItem Content="2" Tag="3"/>
+                            <ComboBoxItem Content="Max" Tag="4"/>
+                        </ComboBox.Items>
+                    </ComboBox>
+                </StackPanel>
 
-                        <!-- RS485 Buttons -->
-                        <StackPanel Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,15,0,0">
-                            <Button Content="Send RS485 Config" Command="{Binding SendRS485Command}" 
-                                    Background="#4CAF50" Foreground="White" Padding="15,8" Margin="0,0,10,0"/>
-                            <Button Content="Read RS485 Config" Command="{Binding ReadRS485Command}" 
-                                    Background="#2196F3" Foreground="White" Padding="15,8"/>
-                        </StackPanel>
-                    </Grid>
-                </GroupBox>
 
-                <!-- Ethernet Configuration -->
-                <GroupBox Header="Ethernet Configuration" Margin="0,0,0,20">
-                    <Grid Margin="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                <!-- Send and Receive config -->
 
-                        <CheckBox Content="Static IP" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" 
-                                  IsChecked="{Binding Ethernet.IsStatic}" Margin="0,0,0,10"/>
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                    <Button Content="Send RS485" Command="{Binding SendRS485Command}" Width="100" Margin="0,0,10,0"/>
+                    <Button Content="Read RS485" Command="{Binding ReadRS485Command}" Width="100"/>
+                </StackPanel>
 
-                        <TextBlock Text="IP Address:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBox Text="{Binding Ethernet.IP}" Grid.Column="1" Grid.Row="1" Margin="0,0,20,0"/>
+                <Separator Margin="10"/>
 
-                        <TextBlock Text="Gateway:" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBox Text="{Binding Ethernet.Gateway}" Grid.Column="3" Grid.Row="1"/>
+                <!-- Scan Device -->
+                <StackPanel Orientation="Horizontal" Margin="0,10">
+                    <Button Content="Find Device" Command="{Binding FindDeviceCommand}" Width="120" />
+                    <TextBlock Text="{Binding FoundDeviceIp}" Margin="10,0,0,0" FontWeight="Bold" />
+                </StackPanel>
 
-                        <TextBlock Text="Netmask:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Margin="0,10,10,0"/>
-                        <TextBox Text="{Binding Ethernet.Netmask}" Grid.Column="1" Grid.Row="2" Margin="0,10,20,0"/>
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="Select Device:" Width="100"/>
+                    <ComboBox ItemsSource="{Binding FoundDevices}" 
+                           SelectedItem="{Binding DeviceIp}" 
+                           Width="150"/>
+                </StackPanel>
 
-                        <TextBlock Text="Port:" Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Margin="0,10,10,0"/>
-                        <TextBox Text="{Binding Ethernet.Port}" Grid.Column="3" Grid.Row="2" Margin="0,10,0,0"/>
+                <TextBlock Text="Selected IP:" FontWeight="Bold" Margin="0,5,0,0"/>
+                <TextBlock Text="{Binding DeviceIp}" Margin="0,0,0,10"/>
 
-                        <TextBlock Text="DNS Primary:" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Margin="0,10,10,0"/>
-                        <TextBox Text="{Binding Ethernet.DnsMain}" Grid.Column="1" Grid.Row="3" Margin="0,10,20,0"/>
+                <!-- Ethernet Settings -->
+                <TextBlock Text="Ethernet Settings" FontWeight="Bold" Margin="0,10,0,5"/>
 
-                        <TextBlock Text="DNS Backup:" Grid.Column="2" Grid.Row="3" VerticalAlignment="Center" Margin="0,10,10,0"/>
-                        <TextBox Text="{Binding Ethernet.DnsBackup}" Grid.Column="3" Grid.Row="3" Margin="0,10,0,0"/>
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="Static IP:" Width="100"/>
+                    <CheckBox IsChecked="{Binding Ethernet.IsStatic}" Width="150"/>
+                </StackPanel>
 
-                        <!-- Ethernet Buttons -->
-                        <StackPanel Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,15,0,0">
-                            <Button Content="Send Ethernet Config" Command="{Binding SendEthernetCommand}" 
-                                    Background="#FF9800" Foreground="White" Padding="15,8" Margin="0,0,10,0"/>
-                            <Button Content="Read Ethernet Config" Command="{Binding ReadEthernetCommand}" 
-                                    Background="#9C27B0" Foreground="White" Padding="15,8"/>
-                        </StackPanel>
-                    </Grid>
-                </GroupBox>
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="IP Address:" Width="100"/>
+                    <TextBox Text="{Binding Ethernet.IP}" Width="150" Margin="0,0,10,0"/>
+                    <Button Content="Ping" Width="60" Command="{Binding PingCommand}" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="Gateway:" Width="100"/>
+                    <TextBox Text="{Binding Ethernet.Gateway}" Width="150"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="Netmask:" Width="100"/>
+                    <TextBox Text="{Binding Ethernet.Netmask}" Width="150"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="DNS Main:" Width="100"/>
+                    <TextBox Text="{Binding Ethernet.DnsMain}" Width="150"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="DNS Backup:" Width="100"/>
+                    <TextBox Text="{Binding Ethernet.DnsBackup}" Width="150"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="Port:" Width="100"/>
+                    <TextBox Text="{Binding Ethernet.Port}" Width="150"/>
+                </StackPanel>
+
+                <!-- Send and Receive Ethernet Settings -->
+
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                    <Button Content="Read Ethernet" Command="{Binding ReadEthernetCommand}" Width="120" Margin="0,0,10,0"/>
+                    <Button Content="Send Ethernet" Command="{Binding SendEthernetCommand}" Width="120"/>
+                </StackPanel>
+
+                <Separator Margin="10"/>
+
+                <!-- MAC Address -->
+                <TextBlock Text="Device MAC Address:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding MACAddress}" Margin="0,0"/>
+                <Button Content="Get MAC" Command="{Binding GetMACCommand}" Width="100" HorizontalAlignment="Left"/>
+
+                <Separator Margin="10"/>
+
+                <!-- Reset -->
+                <TextBlock Text="RESET" FontWeight="Bold"/>
+                <Button Content="Reset Device" Command="{Binding ResetCommand}" Width="100" HorizontalAlignment="Left"/>
+
             </StackPanel>
         </ScrollViewer>
-
-        <!-- Footer -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
-            <Button Content="Close" Width="100" Height="35" Click="CloseButton_Click" 
-                    Background="#E0E0E0" Foreground="Black"/>
-        </StackPanel>
     </Grid>
-</Window> 
+</Window>

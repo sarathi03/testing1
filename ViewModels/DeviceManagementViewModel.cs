@@ -337,65 +337,6 @@ namespace testing1.ViewModels
             // In a real implementation, you would filter the collection view
         }
 
-        private void LoadSampleData()
-        {
-            var sampleDevices = new[]
-            {
-                new DeviceInfo
-                {
-                    DeviceName = "Router-Main",
-                    IP = "192.168.1.1",
-                    Port = 80,
-                    MAC = "AA:BB:CC:DD:EE:FF",
-                    Status = DeviceStatus.Online,
-                    Location = "Server Room",
-                    LastSeen = DateTime.Now.AddMinutes(-5)
-                },
-                new DeviceInfo
-                {
-                    DeviceName = "Switch-01",
-                    IP = "192.168.1.2",
-                    Port = 23,
-                    MAC = "11:22:33:44:55:66",
-                    Status = DeviceStatus.Offline,
-                    Location = "Network Closet",
-                    LastSeen = DateTime.Now.AddHours(-2)
-                },
-                new DeviceInfo
-                {
-                    DeviceName = "Access Point",
-                    IP = "192.168.1.10",
-                    Port = 443,
-                    MAC = "99:88:77:66:55:44",
-                    Status = DeviceStatus.Online,
-                    Location = "Conference Room",
-                    LastSeen = DateTime.Now.AddMinutes(-1)
-                },
-                new DeviceInfo
-                {
-                    DeviceName = "Printer-HP",
-                    IP = "192.168.1.20",
-                    Port = 9100,
-                    MAC = "12:34:56:78:90:AB",
-                    Status = DeviceStatus.Connecting,
-                    Location = "Office Floor 1",
-                    LastSeen = DateTime.Now.AddMinutes(-30)
-                }
-            };
-
-            foreach (var deviceInfo in sampleDevices)
-            {
-                AddDevice(deviceInfo);
-            }
-        }
-
-        private string GenerateRandomMAC()
-        {
-            var random = new Random();
-            var mac = new byte[6];
-            random.NextBytes(mac);
-            return string.Join(":", mac.Select(b => b.ToString("X2")));
-        }
 
         private void OnDeviceStatusChanged(object sender, DeviceStatusChangedEventArgs e)
         {
