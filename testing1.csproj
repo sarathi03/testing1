@@ -7,7 +7,23 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Images\funnel-plus.png" />
+	  <None Remove="Images\MachDatumLogo2.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MahApps.Metro.IconPacks" Version="6.0.0" />
+		<PackageReference Include="MahApps.Metro.IconPacks.Lucide" Version="6.0.0" />
 		<PackageReference Include="YamlDotNet" Version="13.7.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="Images\funnel-plus.png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Images\MachDatumLogo2.png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Resource>
 	</ItemGroup>
 </Project>
 

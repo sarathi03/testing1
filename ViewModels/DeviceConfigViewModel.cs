@@ -42,6 +42,7 @@ namespace testing1.ViewModels
         public ICommand ReadRS485Command { get; }
         public ICommand SendEthernetCommand { get; }
         public ICommand ReadEthernetCommand { get; }
+        public ICommand ResetCommand { get; }
 
         public DeviceConfigViewModel()
         {
@@ -49,6 +50,7 @@ namespace testing1.ViewModels
             ReadRS485Command = new RelayCommand(ReadRS485);
             SendEthernetCommand = new RelayCommand(SendEthernet);
             ReadEthernetCommand = new RelayCommand(ReadEthernet);
+            ResetCommand = new RelayCommand(ResetDevice);
         }
 
         // RS485 Configuration Methods
@@ -147,7 +149,7 @@ namespace testing1.ViewModels
                     return;
                 }
 
-                byte[] config = new byte[88];
+                byte[] config = new byte[84];
                 int offset = 0;
                 
                 // Static IP flag
@@ -169,7 +171,7 @@ namespace testing1.ViewModels
                 CopyString(Ethernet.DnsBackup, 16);
                 
                 // Port
-                BitConverter.GetBytes(Ethernet.Port).CopyTo(config, offset);
+                //BitConverter.GetBytes(Ethernet.Port).CopyTo(config, offset);
                 
                 _tcpHelper.SendCommand("SETNW", config);
                 _tcpHelper.Disconnect();
@@ -200,20 +202,20 @@ namespace testing1.ViewModels
                 }
 
                 _tcpHelper.SendCommand("GETNW");
-                var buffer = _tcpHelper.ReadResponse(88);
-                
-                if (buffer.Length < 88)
+                var buffer = _tcpHelper.ReadResponse(84);
+
+                if (buffer.Length < 84)
                 {
                     MessageBox.Show("Invalid response from device.", "Read Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 int offset = 0;
-                
+
                 // Static IP flag
                 Ethernet.IsStatic = BitConverter.ToInt32(buffer, offset) == 1;
                 offset += 4;
-                
+
                 // Helper function to read strings
                 string ReadString(int length)
                 {
@@ -221,23 +223,39 @@ namespace testing1.ViewModels
                     offset += length;
                     return result;
                 }
-                
+
                 Ethernet.IP = ReadString(16);
                 Ethernet.Gateway = ReadString(16);
                 Ethernet.Netmask = ReadString(16);
                 Ethernet.DnsMain = ReadString(16);
                 Ethernet.DnsBackup = ReadString(16);
-                Ethernet.Port = (ushort)BitConverter.ToInt32(buffer, offset);
-                
+                //Ethernet.Port = (ushort)BitConverter.ToInt32(buffer, offset);
+
                 OnPropertyChanged(nameof(Ethernet));
                 _tcpHelper.Disconnect();
-                
+
                 MessageBox.Show("Ethernet configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error reading Ethernet configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void ResetDevice()
+        {
+            _tcpHelper = new TcpClientHelper(DeviceIp);
+            if (!_tcpHelper.Connect(DeviceIp))
+            {
+                MessageBox.Show("Could not connect to device.", "Connection Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            _tcpHelper.SendCommand("RST");
+
+            _tcpHelper.Disconnect();
+
+            MessageBox.Show("Device reset success", "Reset Done", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

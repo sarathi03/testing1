@@ -430,7 +430,7 @@ namespace testing1.ViewModels
                 AvailableDevices.Clear();
 
                 var subnets = NetworkHelper.GetAllLocalSubnets();
-                var ports = new List<int> { 502, 1502 };
+                var ports = new List<int> { 502 };
                 var tasks = new List<Task>();
 
                 // Calculate total IPs to scan for progress tracking

@@ -11,8 +11,8 @@ namespace testing1.Helpers
     {
         private string _ipAddress;
         private int _port;
-        private TcpClient? _client;
-        private NetworkStream? _stream;
+        private TcpClient _client;
+        private NetworkStream _stream;
 
         public TcpClientHelper(string ipAddress, int port = 1502)
         {
@@ -47,7 +47,7 @@ namespace testing1.Helpers
             _client?.Close();
         }
 
-        public void SendCommand(string cmd, byte[]? data = null)
+        public void SendCommand(string cmd, byte[] data = null)
         {
             if (_stream == null) throw new InvalidOperationException("Not connected to TCP stream.");
             var cmdBytes = Encoding.ASCII.GetBytes(cmd);

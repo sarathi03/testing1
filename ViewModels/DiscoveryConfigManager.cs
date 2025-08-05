@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq; // Added for .Any()
 using System.Windows;
+using testing1.Models;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
-using testing1.Models;
-using System.Linq; // Added for .Any()
 
 namespace testing1.ViewModels
 {
@@ -76,6 +76,7 @@ namespace testing1.ViewModels
             }
         }
 
+
         public bool SaveMultipleDeviceConfigs(List<DeviceInfo> devices)
         {
             try
@@ -89,31 +90,25 @@ namespace testing1.ViewModels
                     {
                         successCount++;
                     }
-                    else
-                    {
-                        errors.Add($"Failed to save device: {device.IP} (MAC: {device.MAC})");
-                    }
                 }
 
-                // Show summary
-                string message = $"Successfully saved {successCount} out of {devices.Count} devices.";
+                // Remove the MessageBox.Show here - let the calling code handle UI feedback
+                // Only log errors if needed for debugging
                 if (errors.Count > 0)
                 {
-                    message += $"\n\nErrors:\n{string.Join("\n", errors)}";
+                    System.Diagnostics.Debug.WriteLine($"Errors occurred while saving: {string.Join(", ", errors)}");
                 }
-
-                MessageBox.Show(message, "Save Results", MessageBoxButton.OK,
-                    errors.Count > 0 ? MessageBoxImage.Warning : MessageBoxImage.Information);
 
                 return successCount > 0;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error saving multiple device configs: {ex.Message}", "Save Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                // Keep error messages for actual exceptions
+                MessageBox.Show($"Error saving multiple device configs: {ex.Message}", "Save Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
         }
-
         public List<DeviceConfig> LoadAllDeviceConfigs()
         {
             var configs = new List<DeviceConfig>();

@@ -14,6 +14,6 @@ namespace testing1.Models
         public string Netmask { get; set; } = "";
         public string DnsMain { get; set; } = "";
         public string DnsBackup { get; set; } = "";
-        public ushort Port { get; set; }
+        //public ushort Port { get; set; }
     }
 }

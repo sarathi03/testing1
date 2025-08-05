@@ -12,10 +12,11 @@ namespace testing1
         {
             InitializeComponent();
             configManager = new DeviceConfigManager();
-            // Start with DiscoveryView
-            var discoveryView = new Views.DiscoveryView();
-            discoveryView.NavigateToDeviceManagement += OnNavigateToDeviceManagement;
-            MainContent.Content = discoveryView;
+
+            // Start with DeviceManagementView instead of DiscoveryView
+            var deviceManagementView = new Views.DeviceManagementView();
+            deviceManagementView.NavigateToDiscovery += OnNavigateToDiscovery;
+            MainContent.Content = deviceManagementView;
         }
 
         // Handle navigation from DiscoveryView to DeviceManagementView
@@ -24,7 +25,7 @@ namespace testing1
             var deviceManagementView = new Views.DeviceManagementView();
             deviceManagementView.NavigateToDiscovery += OnNavigateToDiscovery;
             MainContent.Content = deviceManagementView;
-            
+
             // Bring window to front
             this.Activate();
             this.Focus();
@@ -36,7 +37,7 @@ namespace testing1
             var discoveryView = new Views.DiscoveryView();
             discoveryView.NavigateToDeviceManagement += OnNavigateToDeviceManagement;
             MainContent.Content = discoveryView;
-            
+
             // Bring window to front
             this.Activate();
             this.Focus();

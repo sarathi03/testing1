@@ -16,7 +16,7 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="AliceBlue" BorderBrush="#D0D0D0" BorderThickness="0,0,0,1">
+        <Border Grid.Row="0" Background="WhiteSmoke" BorderBrush="#D0D0D0" BorderThickness="0,0,0,1">
             <Grid Height="40">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -24,15 +24,22 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Image Grid.Column="0"  Width="16" Height="16" Margin="10,0,5,0"/>
-                <TextBlock Grid.Column="1" Text="Available Devices on Network"
-                           VerticalAlignment="Center" FontSize="15" FontWeight="Bold"/>
+                <Image Grid.Column="0"  Width="16" Height="16" Margin="0,0,5,0"/>
+                <TextBlock Grid.Column="1" Text="Device Discovery"
+                           VerticalAlignment="Center" FontFamily="Segoe UI" FontSize="24" FontWeight="SemiBold"/>
 
                 <!-- Open Config Directory Button -->
-                <Button Grid.Column="2" Content="📁 Config Folder" 
-                        Command="{Binding OpenConfigDirectoryCommand}"
-                        Margin="0,0,10,0" Padding="8,4" FontSize="10"
-                        ToolTip="Open device configuration folder"/>
+                <Button Grid.Column="2"
+        Content="📁"
+        Command="{Binding OpenConfigDirectoryCommand}"
+        ToolTip="Open device configuration folder"
+        Padding="8,2"
+        FontSize="13"
+        Background="Transparent"
+        BorderThickness="0"
+        BorderBrush="Transparent"
+        Cursor="Hand"/>
+
             </Grid>
         </Border>
 
@@ -42,22 +49,47 @@
 
         <!-- Static IP and Subnet Information -->
         <StackPanel Grid.Row="1" Orientation="Vertical" Margin="20,15,20,15" VerticalAlignment="Bottom">
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                <TextBlock Text="Ethernet IP: " FontSize="12" FontWeight="Bold"/>
-                <TextBlock Text="{Binding EthernetIP}" FontSize="12" FontFamily="Consolas" Margin="0,0,10,0"/>
-                <TextBlock Text="Subnet: " FontSize="12" FontWeight="Bold"/>
-                <TextBlock Text="{Binding EthernetSubnet}" FontSize="12" FontFamily="Consolas"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                <TextBlock Text="WiFi IP: " FontSize="12" FontWeight="Bold"/>
-                <TextBlock Text="{Binding WiFiIP}" FontSize="12" FontFamily="Consolas" Margin="0,0,10,0"/>
-                <TextBlock Text="Subnet: " FontSize="12" FontWeight="Bold"/>
-                <TextBlock Text="{Binding WiFiSubnet}" FontSize="12" FontFamily="Consolas"/>
-            </StackPanel>
+
+            <!-- Ethernet Info -->
+            <Grid Margin="0,0,0,2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <!-- Label -->
+                    <ColumnDefinition Width="160"/>
+                    <!-- IP -->
+                    <ColumnDefinition Width="64"/>
+                    <!-- 'Subnet:' label -->
+                    <ColumnDefinition Width="*"/>
+                    <!-- Subnet IP -->
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Ethernet IP :" Grid.Column="0" FontSize="14" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding EthernetIP}" Grid.Column="1" FontSize="14" FontFamily="Segoe UI"/>
+                <TextBlock Text="Subnet   :" Grid.Column="2" FontSize="14" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding EthernetSubnet}" Grid.Column="3" FontSize="14" FontFamily="Segoe UI"/>
+            </Grid>
+
+            <!-- WiFi Info -->
+            <Grid Margin="0,0,0,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="64"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="WiFi IP        :" Grid.Column="0" FontSize="14" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding WiFiIP}" Grid.Column="1" FontSize="14" FontFamily="Segoe UI"/>
+                <TextBlock Text="Subnet   :" Grid.Column="2" FontSize="14" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding WiFiSubnet}" Grid.Column="3" FontSize="14" FontFamily="Segoe UI"/>
+            </Grid>
+
         </StackPanel>
 
+
+
         <!-- IP/Gateway Info, Subnet Scanner Info and Scan Button -->
-        <Border Grid.Row="2" Background="AliceBlue" BorderBrush="White" BorderThickness="1" Margin="15,0,15,10">
+        <Border Grid.Row="2" Background="WhiteSmoke" BorderBrush="White" BorderThickness="1" Margin="8,0,15,10">
             <Grid Margin="10">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -70,19 +102,36 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Current IP and Gateway Info (Static) -->
-                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,0,0,10">
-                    <TextBlock Text="Current IP: " FontWeight="SemiBold" FontSize="12" Margin="0,0,5,0"/>
-                    <TextBlock Text="{Binding CurrentIP}" FontSize="12" FontFamily="Consolas" Margin="0,2,20,0"/>
-                    <TextBlock Text="Gateway: " FontWeight="SemiBold" FontSize="12" Margin="0,0,5,0"/>
-                    <TextBlock Text="{Binding Gateway}" FontSize="12" Margin="0,3,20,0" FontFamily="Consolas"/>
-                </StackPanel>
+                <!--StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Text="Current IP: " FontWeight="SemiBold" FontSize="14" Margin="0,0,5,0"/>
+                    <TextBlock Text="{Binding CurrentIP}" FontSize="14" FontFamily="Segoe UI" Margin="0,2,20,0"/>
+                    <TextBlock Text="Gateway: " FontWeight="SemiBold" FontSize="14" Margin="0,0,5,0"/>
+                    <TextBlock Text="{Binding Gateway}" FontSize="14" Margin="0,3,20,0" FontFamily="Segoe UI"/>
+                </StackPanel-->
+                <Grid Margin="0,5,0,2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80"/>
+                        <!-- Label -->
+                        <ColumnDefinition Width="160"/>
+                        <!-- IP -->
+                        <ColumnDefinition Width="64"/>
+                        <!-- 'Subnet:' label -->
+                        <ColumnDefinition Width="*"/>
+                        <!-- Subnet IP -->
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Current IP   :" Grid.Column="0" FontSize="14" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding CurrentIP}" Grid.Column="1" FontSize="14" FontFamily="Segoe UI"/>
+                    <TextBlock Text="Gateway :" Grid.Column="2" FontSize="14" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding Gateway}" Grid.Column="3" FontSize="14" FontFamily="Segoe UI"/>
+                </Grid>
 
                 <!-- Scan Button with Progress Indicator - Simple Version -->
-                <StackPanel Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right">
+                <StackPanel Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right">
                     <!-- Normal Scan Button -->
                     <Button Content="Scan Subnet" 
                             Command="{Binding ScanSubnetCommand}"
-                            Width="120" Height="30">
+                            Width="120" Height="30" Background="#255DD4" Foreground="#ffffff" FontSize="13" FontWeight="SemiBold" FontFamily="Segoe UI">
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Setter Property="Visibility" Value="Visible"/>
@@ -125,8 +174,8 @@
 
                 <Border Grid.Row="0" Background="#F8F8F8" BorderBrush="#D0D0D0" BorderThickness="0,0,0,1" Height="35">
                     <CheckBox Content="Select All" Margin="10,0,0,0"
-                              VerticalAlignment="Center" FontWeight="SemiBold"
-                              IsChecked="{Binding SelectAllDevices}"/>
+                              VerticalAlignment="Center" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold"
+                          IsChecked="{Binding SelectAllDevices}"/>
                 </Border>
 
                 <DataGrid Grid.Row="1" ItemsSource="{Binding AvailableDevices}"
@@ -134,10 +183,11 @@
                           CanUserAddRows="False" SelectionMode="Extended"
                           AlternatingRowBackground="#F9F9F9">
                     <DataGrid.Columns>
-                        <DataGridTemplateColumn Header="Select" Width="60">
+                        <DataGridTemplateColumn Header="Select" Width="60" >
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center"/>
+                                    <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center"
+                                    FontFamily="Segoe UI"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
@@ -150,9 +200,9 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn-->
 
-                        <DataGridTextColumn Header="IP Address" Binding="{Binding IPAddress}" Width="150" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Port" Binding="{Binding Port}" Width="100" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="MAC Address" Binding="{Binding MacAddress}" Width="*" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="IP Address" Binding="{Binding IPAddress}" Width="150" IsReadOnly="True" FontFamily="Segoe UI" FontSize="14"/>
+                        <DataGridTextColumn Header="Port" Binding="{Binding Port}" Width="100" IsReadOnly="True" FontSize="14"/>
+                        <DataGridTextColumn Header="MAC Address" Binding="{Binding MacAddress}" Width="200" IsReadOnly="True" FontSize="14"/>
                     </DataGrid.Columns>
                 </DataGrid>
 
@@ -187,14 +237,16 @@
             <!--Button Content="Add All Devices" Command="{Binding AddAllDevicesCommand}"
                     Background="#28a745" Foreground="White"
                     Padding="15,8" Margin="0,0,10,0"/-->
-            <Button Content="Add Selected Devices" 
-                    Background="#4A90E2" Foreground="White"
-                    Padding="15,8"
-                    Click="AddSelectedDevices_Click"/>
             <Button Content="Manage Device"
-                    Background="#3498DB" Foreground="White"
-                    Padding="15,8" Margin="10,0,0,0"
+                    Background="#255DD4" Foreground="White"
+                    Padding="15,8" Margin="0,0,10,0" FontSize="13" FontWeight="SemiBold"
                     Click="ManageDevice_Click"/>
+
+            <Button Content="Add Selected Devices" 
+                    Background="#255DD4" Foreground="White"
+                    Padding="15,8" FontSize="13" FontWeight="SemiBold"
+                    Click="AddSelectedDevices_Click"/>
+
         </StackPanel>
     </Grid>
 

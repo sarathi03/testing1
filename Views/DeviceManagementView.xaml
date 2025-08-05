@@ -17,6 +17,7 @@
             <Setter Property="Height" Value="12"/>
             <Setter Property="Margin" Value="5,0"/>
             <Setter Property="Fill" Value="Gray"/>
+
             <Style.Triggers>
                 <DataTrigger Binding="{Binding DeviceInfo.Status}" Value="Connected">
                     <Setter Property="Fill" Value="Green"/>
@@ -38,7 +39,7 @@
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Background" Value="#4A90E2"/>
+            <Setter Property="Background" Value="#255DD4"/>
             <Setter Property="Foreground" Value="White"/>
         </Style>
 
@@ -51,7 +52,7 @@
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontSize" Value="10"/>
-            <Setter Property="Background" Value="#FF9800"/>
+            <Setter Property="Background" Value="#255DD4"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
@@ -65,7 +66,7 @@
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontSize" Value="10"/>
-            <Setter Property="Background" Value="#E74C3C"/>
+            <Setter Property="Background" Value="#718096"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
@@ -101,17 +102,21 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
+        
+        
         <!-- Header -->
         <TextBlock Grid.Row="0" 
                    Text="Device Management Panel" 
                    FontSize="24" 
-                   FontWeight="Bold" 
-                   Margin="0,0,0,20"
+                   FontWeight="SemiBold" 
+                   FontFamily="Segoe UI"
+                   Margin="0,-15,0,20"
                    Foreground="#2C3E50"/>
 
         <!-- Search and Action Bar -->
         <Grid Grid.Row="1" Margin="0,0,0,15">
             <Grid.ColumnDefinitions>
+                
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
@@ -121,12 +126,14 @@
                 <TextBlock Text="Search Device:" 
                            VerticalAlignment="Center" 
                            Margin="0,0,10,0"
-                           FontWeight="SemiBold"/>
+                           FontWeight="SemiBold"
+                           FontFamily="Segoe UI"
+                           FontSize="14"/>
                 <TextBox x:Name="SearchTextBox" 
                          Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                          Width="300" 
-                         Height="32"
-                         Style="{StaticResource SearchTextBoxStyle}"/>
+                         Height="37"
+                         Style="{StaticResource ModernTextBoxStyle}"/>
             </StackPanel>
 
             <!-- Action Buttons -->
@@ -134,12 +141,12 @@
                 <Button Content="🔍 Filter" 
                         Command="{Binding FilterCommand}"
                         Style="{StaticResource ActionButtonStyle}"
-                        Background="#9B59B6" 
+                        Background="#255DD4" 
                         Foreground="White"/>
                 <Button Content="➕ Add Device" 
                         Click="NavigateToDiscovery_Click"
                         Style="{StaticResource ActionButtonStyle}"
-                        Background="#3498DB" 
+                        Background="#255DD4" 
                         Foreground="White"/>
             </StackPanel>
         </Grid>
@@ -177,12 +184,6 @@
                 <DataGridTextColumn Header="IP Address" 
                                     Binding="{Binding DeviceInfo.IP}" 
                                     Width="120"
-                                    IsReadOnly="True"/>
-
-                <!-- Port Column -->
-                <DataGridTextColumn Header="Port" 
-                                    Binding="{Binding DeviceInfo.Port}" 
-                                    Width="80"
                                     IsReadOnly="True"/>
 
                 <!-- Device Name Column (Editable) -->
@@ -231,23 +232,6 @@
                                     Width="130"
                                     IsReadOnly="True"/>
 
-                <!-- Device Number Column -->
-                <DataGridTextColumn Header="Device #" 
-                                    Binding="{Binding DeviceNumber}" 
-                                    Width="80"
-                                    IsReadOnly="True"/>
-
-                <!-- Last Seen Column - Direct binding without converter -->
-                <DataGridTemplateColumn Header="Last Seen" Width="130">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding DeviceInfo.LastSeen, StringFormat='yyyy-MM-dd HH:mm'}"
-                                       VerticalAlignment="Center"
-                                       Padding="5,0"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-
                 <!-- Actions Column -->
                 <DataGridTemplateColumn Header="Actions" Width="180" CanUserSort="False">
                     <DataGridTemplateColumn.CellTemplate>
@@ -269,7 +253,7 @@
 
         <!-- Status Bar -->
         <Grid Grid.Row="3" 
-              Background="#34495E" 
+              Background="#1A202C" 
               Height="35">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -284,7 +268,9 @@
                         Margin="15,0">
                 <TextBlock Text="Total Devices: " 
                            Foreground="White" 
-                           FontWeight="SemiBold"/>
+                           FontWeight="SemiBold"
+                           FontFamily="Segoe UI"
+                           FontSize="14"/>
                 <TextBlock Text="{Binding Devices.Count}" 
                            Foreground="#3498DB" 
                            FontWeight="Bold"/>
@@ -297,7 +283,7 @@
                         Margin="10,0"
                         Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <TextBlock Text="Loading..." 
-                           Foreground="#E67E22" 
+                           Foreground="#255DD4" 
                            FontStyle="Italic"
                            Margin="0,0,5,0"/>
                 <Border Width="16" Height="16">
@@ -336,12 +322,12 @@
                 <TextBlock Text="Selected: " 
                            Foreground="White"/>
                 <TextBlock Text="{Binding SelectedDevice.DeviceInfo.DeviceName}" 
-                           Foreground="#2ECC71" 
+                           Foreground="#255DD4" 
                            FontWeight="SemiBold"/>
                 <TextBlock Text=" (" 
                            Foreground="White"/>
                 <TextBlock Text="{Binding SelectedDevice.DeviceInfo.IP}" 
-                           Foreground="#2ECC71"/>
+                           Foreground="#255DD4"/>
                 <TextBlock Text=")" 
                            Foreground="White"/>
             </StackPanel>

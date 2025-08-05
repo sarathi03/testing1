@@ -6,26 +6,14 @@ namespace testing1.Models
 {
     public class DeviceInfo : INotifyPropertyChanged
     {
-        private string _deviceName;
         private string _ip;
         private int _port;
         private string _mac;
-        private DeviceStatus _status = DeviceStatus.Unknown;
+        private string _deviceName;
         private string _location;
-        private DateTime _lastSeen = DateTime.Now;
-
-        public string DeviceName
-        {
-            get => _deviceName;
-            set
-            {
-                if (_deviceName != value)
-                {
-                    _deviceName = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        private DeviceStatus _status;
+        private DateTime _lastSeen;
+        private string _model;
 
         public string IP
         {
@@ -66,14 +54,14 @@ namespace testing1.Models
             }
         }
 
-        public DeviceStatus Status
+        public string DeviceName
         {
-            get => _status;
+            get => _deviceName;
             set
             {
-                if (_status != value)
+                if (_deviceName != value)
                 {
-                    _status = value;
+                    _deviceName = value;
                     OnPropertyChanged();
                 }
             }
@@ -92,6 +80,19 @@ namespace testing1.Models
             }
         }
 
+        public DeviceStatus Status
+        {
+            get => _status;
+            set
+            {
+                if (_status != value)
+                {
+                    _status = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public DateTime LastSeen
         {
             get => _lastSeen;
@@ -105,6 +106,35 @@ namespace testing1.Models
             }
         }
 
+
+        public string Model
+        {
+            get => _model;
+            set
+            {
+                if (_model != value)
+                {
+                    _model = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public DeviceInfo()
+        {
+            LastSeen = DateTime.Now;
+            Status = DeviceStatus.Unknown;
+            DeviceName = "Unknown Device";
+            Location = "Unknown Location";
+        }
+
+        public DeviceInfo(string ip, int port, string mac = null) : this()
+        {
+            IP = ip;
+            Port = port;
+            MAC = mac ?? "Unknown";
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -116,11 +146,11 @@ namespace testing1.Models
     public enum DeviceStatus
     {
         Unknown,
-        Discovered,
         Online,
         Offline,
         Connected,
         NotConnected,
-        Connecting
+        Error,
+        Discovered
     }
 }

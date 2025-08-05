@@ -12,7 +12,6 @@ namespace testing1.Models
         private DateTime _lastModified;
         private int _deviceNumber;
         private string _configVersion;
-        private string _notes;
 
         public DeviceInfo DeviceInfo
         {
@@ -64,22 +63,12 @@ namespace testing1.Models
             }
         }
 
-        public string Notes
-        {
-            get => _notes;
-            set
-            {
-                _notes = value;
-                OnPropertyChanged();
-            }
-        }
-
         public DeviceConfig()
         {
             CreatedDate = DateTime.Now;
             LastModified = DateTime.Now;
             ConfigVersion = "1.0";
-            Notes = string.Empty;
+
         }
 
         public DeviceConfig(DeviceInfo deviceInfo) : this()
@@ -138,33 +127,6 @@ namespace testing1.Models
         {
             AdvancedSettings = new Dictionary<string, object>();
             IsAdvancedMode = false;
-        }
-
-        // Method to add advanced setting
-        public void AddAdvancedSetting(string key, object value)
-        {
-            if (AdvancedSettings == null)
-                AdvancedSettings = new Dictionary<string, object>();
-
-            AdvancedSettings[key] = value;
-            UpdateLastModified();
-            OnPropertyChanged(nameof(AdvancedSettings));
-        }
-
-        // Method to remove advanced setting
-        public bool RemoveAdvancedSetting(string key)
-        {
-            if (AdvancedSettings?.ContainsKey(key) == true)
-            {
-                var result = AdvancedSettings.Remove(key);
-                if (result)
-                {
-                    UpdateLastModified();
-                    OnPropertyChanged(nameof(AdvancedSettings));
-                }
-                return result;
-            }
-            return false;
         }
     }
 }
