@@ -7,8 +7,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Images\configure.png" />
 	  <None Remove="Images\funnel-plus.png" />
 	  <None Remove="Images\MachDatumLogo2.png" />
+	  <None Remove="Images\trash.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -18,10 +20,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Resource Include="Images\configure.png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Resource>
 	  <Resource Include="Images\funnel-plus.png">
 	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	  </Resource>
 	  <Resource Include="Images\MachDatumLogo2.png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Images\trash.png">
 	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	  </Resource>
 	</ItemGroup>

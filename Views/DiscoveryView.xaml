@@ -177,11 +177,21 @@
                               VerticalAlignment="Center" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold"
                           IsChecked="{Binding SelectAllDevices}"/>
                 </Border>
+                
 
                 <DataGrid Grid.Row="1" ItemsSource="{Binding AvailableDevices}"
                           AutoGenerateColumns="False" HeadersVisibility="Column"
                           CanUserAddRows="False" SelectionMode="Extended"
                           AlternatingRowBackground="#F9F9F9">
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="FontFamily" Value="Segoe UI"/>
+                            <Setter Property="FontSize" Value="14"/>
+                            <!-- or your preferred size -->
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <!-- optional -->
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
                     <DataGrid.Columns>
                         <DataGridTemplateColumn Header="Select" Width="60" >
                             <DataGridTemplateColumn.CellTemplate>

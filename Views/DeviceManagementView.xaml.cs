@@ -135,6 +135,11 @@ namespace testing1.Views
                 ConfigureDevice(ViewModel.SelectedDevice);
             }
         }
+
+        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }
 
