@@ -430,7 +430,7 @@ namespace testing1.ViewModels
                 AvailableDevices.Clear();
 
                 var subnets = NetworkHelper.GetAllLocalSubnets();
-                var ports = new List<int> { 502 };
+                var ports = new List<int> { 1502 };
                 var tasks = new List<Task>();
 
                 // Calculate total IPs to scan for progress tracking
@@ -631,6 +631,11 @@ namespace testing1.ViewModels
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        internal string GetLocalIPAddress()
+        {
+            throw new NotImplementedException();
         }
     }
 

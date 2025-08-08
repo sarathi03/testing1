@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using testing1.Models;
@@ -21,7 +22,7 @@ namespace testing1.Services
             _devicesToMonitor = new List<DeviceInfo>();
             _monitorTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromSeconds(3) // Check every 1 second
+                Interval = TimeSpan.FromSeconds(3) // Ping check every 3s
             };
             _monitorTimer.Tick += OnMonitorTimerTick;
         }
@@ -42,7 +43,6 @@ namespace testing1.Services
 
             lock (_lockObject)
             {
-                // Only add if not already present (by reference)
                 if (!_devicesToMonitor.Contains(device))
                     _devicesToMonitor.Add(device);
             }
@@ -82,11 +82,13 @@ namespace testing1.Services
             foreach (var device in devicesToCheck)
             {
                 var newStatus = await CheckDeviceStatusAsync(device.IP);
+
                 if (device.Status != newStatus)
                 {
                     var oldStatus = device.Status;
                     device.Status = newStatus;
                     device.LastSeen = DateTime.Now;
+
                     DeviceStatusChanged?.Invoke(this, new DeviceStatusChangedEventArgs
                     {
                         Device = device,
@@ -97,60 +99,38 @@ namespace testing1.Services
             }
         }
 
+        // ✅ Pure IP Ping check only
         private async Task<DeviceStatus> CheckDeviceStatusAsync(string ipAddress)
         {
             try
             {
                 using (var ping = new Ping())
                 {
-                    var reply = await ping.SendPingAsync(ipAddress, 2000); // 2 second timeout
-                    if (reply.Status == IPStatus.Success)
-                    {
-                        if (await CheckModbusPortsAsync(ipAddress))
-                        {
-                            return DeviceStatus.Connected; // Green
-                        }
-                        else
-                        {
-                            return DeviceStatus.NotConnected; // Red
-                        }
-                    }
-                    else
-                    {
-                        return DeviceStatus.Offline; // Red
-                    }
+                    var reply = await ping.SendPingAsync(ipAddress, 2000);
+                    return reply.Status == IPStatus.Success ? DeviceStatus.Connected : DeviceStatus.Offline;
                 }
             }
             catch
             {
-                return DeviceStatus.Offline; // Red
+                return DeviceStatus.Offline;
             }
         }
 
-        private async Task<bool> CheckModbusPortsAsync(string ipAddress)
+        // ✅ Discovery logic — to be used *once* before monitoring
+        public async Task<bool> IsModbusDeviceOn502Async(string ipAddress)
         {
-            var ports = new[] { 502, 1502 };
-            foreach (var port in ports)
+            try
             {
-                try
+                using (var client = new TcpClient())
                 {
-                    using (var client = new System.Net.Sockets.TcpClient())
-                    {
-                        var connectTask = client.ConnectAsync(ipAddress, port);
-                        var timeoutTask = Task.Delay(1000); // 1 second timeout
-                        var completedTask = await Task.WhenAny(connectTask, timeoutTask);
-                        if (completedTask == connectTask && !connectTask.IsFaulted)
-                        {
-                            return true; // Port is open
-                        }
-                    }
-                }
-                catch
-                {
-                    // Continue to next port
+                    await client.ConnectAsync(ipAddress, 502);
+                    return true; // Connection success
                 }
             }
-            return false; // No Modbus ports are open
+            catch
+            {
+                return false; // Port 502 not open
+            }
         }
     }
 
@@ -160,4 +140,4 @@ namespace testing1.Services
         public DeviceStatus OldStatus { get; set; }
         public DeviceStatus NewStatus { get; set; }
     }
-} 
+}

@@ -54,6 +54,7 @@ namespace testing1.ViewModels
         }
 
         // RS485 Configuration Methods
+        // RS485 Configuration Methods
         private void SendRS485()
         {
             if (string.IsNullOrWhiteSpace(DeviceIp))
@@ -61,7 +62,6 @@ namespace testing1.ViewModels
                 MessageBox.Show("Please enter a valid device IP address.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-
             try
             {
                 _tcpHelper = new TcpClientHelper(DeviceIp);
@@ -70,21 +70,20 @@ namespace testing1.ViewModels
                     MessageBox.Show("Failed to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-
                 byte[] config = new byte[7];
                 Buffer.BlockCopy(BitConverter.GetBytes(RS485.BaudRate), 0, config, 0, 4);
                 config[4] = RS485.Parity;
                 config[5] = RS485.DataBit;
                 config[6] = RS485.StopBit;
-
                 _tcpHelper.SendCommand("SETRS485", config);
-                _tcpHelper.Disconnect();
-                
+
                 MessageBox.Show("RS485 configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                _tcpHelper.Disconnect(); // Disconnect after user clicks OK on success message
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error sending RS485 configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _tcpHelper?.Disconnect(); // Disconnect on exception (with null check)
             }
         }
 
@@ -95,7 +94,6 @@ namespace testing1.ViewModels
                 MessageBox.Show("Please enter a valid device IP address.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-
             try
             {
                 _tcpHelper = new TcpClientHelper(DeviceIp);
@@ -104,17 +102,16 @@ namespace testing1.ViewModels
                     MessageBox.Show("Failed to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-
                 _tcpHelper.SendCommand("GETRS485");
                 var data = _tcpHelper.ReadResponse(7);
-                
+
                 if (data.Length >= 7)
                 {
                     RS485.BaudRate = BitConverter.ToUInt32(data, 0);
                     RS485.Parity = data[4];
                     RS485.DataBit = data[5];
                     RS485.StopBit = data[6];
-                    
+
                     OnPropertyChanged(nameof(RS485));
                     MessageBox.Show("RS485 configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
@@ -122,7 +119,6 @@ namespace testing1.ViewModels
                 {
                     MessageBox.Show("Invalid response from device.", "Read Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
-
                 _tcpHelper.Disconnect();
             }
             catch (Exception ex)
@@ -191,7 +187,6 @@ namespace testing1.ViewModels
                 MessageBox.Show("Please enter a valid device IP address.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-
             try
             {
                 _tcpHelper = new TcpClientHelper(DeviceIp);
@@ -200,22 +195,18 @@ namespace testing1.ViewModels
                     MessageBox.Show("Failed to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-
                 _tcpHelper.SendCommand("GETNW");
                 var buffer = _tcpHelper.ReadResponse(84);
-
                 if (buffer.Length < 84)
                 {
                     MessageBox.Show("Invalid response from device.", "Read Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    _tcpHelper.Disconnect(); // Disconnect on error
                     return;
                 }
-
                 int offset = 0;
-
                 // Static IP flag
                 Ethernet.IsStatic = BitConverter.ToInt32(buffer, offset) == 1;
                 offset += 4;
-
                 // Helper function to read strings
                 string ReadString(int length)
                 {
@@ -223,22 +214,21 @@ namespace testing1.ViewModels
                     offset += length;
                     return result;
                 }
-
                 Ethernet.IP = ReadString(16);
                 Ethernet.Gateway = ReadString(16);
                 Ethernet.Netmask = ReadString(16);
                 Ethernet.DnsMain = ReadString(16);
                 Ethernet.DnsBackup = ReadString(16);
                 //Ethernet.Port = (ushort)BitConverter.ToInt32(buffer, offset);
-
                 OnPropertyChanged(nameof(Ethernet));
-                _tcpHelper.Disconnect();
 
                 MessageBox.Show("Ethernet configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                _tcpHelper.Disconnect(); // Disconnect after user clicks OK on success message
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error reading Ethernet configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _tcpHelper?.Disconnect(); // Disconnect on exception (with null check)
             }
         }
 
