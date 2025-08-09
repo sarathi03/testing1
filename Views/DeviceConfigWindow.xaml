@@ -165,31 +165,36 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-
                         <CheckBox Content="Static IP Configuration" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4" 
-                                  IsChecked="{Binding Wifi.Is_static}" Margin="0,0,0,10" FontWeight="SemiBold"/>
-
+                  IsChecked="{Binding Wifi.Is_static}" Margin="0,0,0,10" FontWeight="SemiBold"/>
                         <TextBlock Text="SSID:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding Wifi.SSID}" Grid.Column="1" Grid.Row="1" Margin="0,5,20,5" FontWeight="Regular"/>
-
+                        
                         <TextBlock Text="DNS Main:" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding Wifi.DNS_main}" Grid.Column="3" Grid.Row="1" Margin="0,5,0,5" FontWeight="Regular"/>
-
+                        
                         <TextBlock Text="Password:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding Wifi.Password}" Grid.Column="1" Grid.Row="2" Margin="0,5,20,5" FontWeight="Regular"/>
-
+                        
                         <TextBlock Text="DNS Backup:" Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding Wifi.DNS_backup}" Grid.Column="3" Grid.Row="2" Margin="0,5,0,5" FontWeight="Regular"/>
-
+                        
                         <TextBlock Text="Subnet Mask:" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
-                        <TextBox Text="{Binding Wifi.Subnetmask}" Grid.Column="1" Grid.Row="3" Margin="0,5,20,5" FontWeight="Regular"/>
-
-                        <!-- WiFi Buttons -->
-                        <StackPanel Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="4" Orientation="Horizontal" Margin="0,15,0,0">
+                        <TextBox Text="{Binding Wifi.netmask}" Grid.Column="1" Grid.Row="3" Margin="0,5,20,5" FontWeight="Regular"/>
+                        
+                        <TextBlock Text="Gateway" Grid.Column="2" Grid.Row="3" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
+                        <TextBox Text="{Binding Wifi.Gateway}" Grid.Column="3" Grid.Row="3" Margin="0,5,0,5" FontWeight="Regular"/>
+                        
+                        <TextBlock Text="IP:" Grid.Column="0" Grid.Row="4" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
+                        <TextBox Text="{Binding Wifi.IP}" Grid.Column="1" Grid.Row="4" Margin="0,5,20,5" FontWeight="Regular"/>
+                        
+                        
+                        <!-- WiFi Buttons moved to row 5 -->
+                        <StackPanel Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="4" Orientation="Horizontal" Margin="0,15,0,0">
                             <Button Content="Read WiFi Config" Command="{Binding ReadWifiCommand}" FontWeight="SemiBold" FontSize="12"
-                                    Background="#255DD4" Foreground="White" Padding="15,8" Margin="0,0,10,0"/>
+                    Background="#255DD4" Foreground="White" Padding="15,8" Margin="0,0,10,0"/>
                             <Button Content="Send WiFi Config" Command="{Binding SendWifiCommand}" FontWeight="SemiBold" FontSize="12"
-                                    Background="#255DD4" Foreground="White" Padding="15,8"/>
+                    Background="#255DD4" Foreground="White" Padding="15,8"/>
                         </StackPanel>
                     </Grid>
                 </GroupBox>

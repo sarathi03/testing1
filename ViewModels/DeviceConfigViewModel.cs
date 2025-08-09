@@ -258,8 +258,7 @@ namespace testing1.ViewModels
                     return;
                 }
 
-                // WiFi configuration packet size: 16 + 64 + 4 + 16 + 16 + 16 = 132 bytes
-                byte[] config = new byte[132];
+                byte[] config = new byte[180];
                 int offset = 0;
 
                 // Helper function to copy strings with specific length
@@ -271,17 +270,23 @@ namespace testing1.ViewModels
                 }
 
                 // SSID - 16 bytes
-                CopyString(Wifi.SSID, 16);
+                CopyString(Wifi.SSID, 32);
 
-                // Password - 64 bytes
+                // Password - 64 byte
                 CopyString(Wifi.Password, 64);
 
                 // Is_static flag - 4 bytes
                 BitConverter.GetBytes(Wifi.Is_static ? 1 : 0).CopyTo(config, offset);
                 offset += 4;
 
+                //IP - 16
+                CopyString(Wifi.IP, 16);
+
+                //Gateway - 16
+                CopyString(Wifi.Gateway, 16);
+
                 // Subnetmask - 16 bytes
-                CopyString(Wifi.Subnetmask, 16);
+                CopyString(Wifi.netmask, 16);
 
                 // DNS_main - 16 bytes
                 CopyString(Wifi.DNS_main, 16);
@@ -299,6 +304,11 @@ namespace testing1.ViewModels
                 MessageBox.Show($"Error sending WiFi configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 _tcpHelper?.Disconnect(); // Disconnect on exception (with null check)
             }
+        }
+
+        private void CopyString(bool gateway, int v)
+        {
+            throw new NotImplementedException();
         }
 
         private void ReadWifi()
@@ -319,9 +329,9 @@ namespace testing1.ViewModels
                 }
 
                 _tcpHelper.SendCommand("GETWIFI");
-                var buffer = _tcpHelper.ReadResponse(132); // 132 bytes for WiFi config
+                var buffer = _tcpHelper.ReadResponse(180); // 132 bytes for WiFi config
 
-                if (buffer.Length < 132)
+                if (buffer.Length < 180)
                 {
                     MessageBox.Show("Invalid response from device.", "Read Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                     _tcpHelper.Disconnect(); // Disconnect on error
@@ -339,7 +349,7 @@ namespace testing1.ViewModels
                 }
 
                 // SSID - 16 bytes
-                Wifi.SSID = ReadString(16);
+                Wifi.SSID = ReadString(32);
 
                 // Password - 64 bytes
                 Wifi.Password = ReadString(64);
@@ -348,8 +358,14 @@ namespace testing1.ViewModels
                 Wifi.Is_static = BitConverter.ToInt32(buffer, offset) == 1;
                 offset += 4;
 
+                //IP - 16
+                Wifi.IP = ReadString(16);
+
+                //Gateway
+                Wifi.Gateway = ReadString(16);
+
                 // Subnetmask - 16 bytes
-                Wifi.Subnetmask = ReadString(16);
+                Wifi.netmask = ReadString(16);
 
                 // DNS_main - 16 bytes
                 Wifi.DNS_main = ReadString(16);

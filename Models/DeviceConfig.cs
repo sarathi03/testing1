@@ -114,7 +114,7 @@ namespace testing1.Models
                 OnPropertyChanged();
             }
         }
-
+        
         // Default constructor
         public EnhancedDeviceConfig() : base()
         {
