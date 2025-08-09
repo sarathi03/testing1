@@ -516,7 +516,7 @@ namespace testing1.ViewModels
                 await Task.WhenAll(tasks);
 
                 // Final progress update
-                ScanProgressText = $"Scan completed! Found {foundDevicesCount} devices with open ports 502/1502";
+                ScanProgressText = $"Scan completed! Found {foundDevicesCount} devices with open ports 1502";
 
                 // Show completion message briefly
                 await Task.Delay(2000);

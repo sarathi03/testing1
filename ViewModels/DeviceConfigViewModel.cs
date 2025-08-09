@@ -22,6 +22,7 @@ namespace testing1.ViewModels
 
         public RS485Settings RS485 { get; set; } = new();
         public EthernetSettings Ethernet { get; set; } = new();
+        public WifiSettings Wifi { get; set; } = new();
 
         private string _deviceIp;
         public string DeviceIp
@@ -42,6 +43,8 @@ namespace testing1.ViewModels
         public ICommand ReadRS485Command { get; }
         public ICommand SendEthernetCommand { get; }
         public ICommand ReadEthernetCommand { get; }
+        public ICommand SendWifiCommand { get; }
+        public ICommand ReadWifiCommand { get; }
         public ICommand ResetCommand { get; }
 
         public DeviceConfigViewModel()
@@ -50,10 +53,11 @@ namespace testing1.ViewModels
             ReadRS485Command = new RelayCommand(ReadRS485);
             SendEthernetCommand = new RelayCommand(SendEthernet);
             ReadEthernetCommand = new RelayCommand(ReadEthernet);
+            SendWifiCommand = new RelayCommand(SendWifi);
+            ReadWifiCommand = new RelayCommand(ReadWifi);
             ResetCommand = new RelayCommand(ResetDevice);
         }
 
-        // RS485 Configuration Methods
         // RS485 Configuration Methods
         private void SendRS485()
         {
@@ -94,6 +98,7 @@ namespace testing1.ViewModels
                 MessageBox.Show("Please enter a valid device IP address.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+
             try
             {
                 _tcpHelper = new TcpClientHelper(DeviceIp);
@@ -102,6 +107,7 @@ namespace testing1.ViewModels
                     MessageBox.Show("Failed to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
+
                 _tcpHelper.SendCommand("GETRS485");
                 var data = _tcpHelper.ReadResponse(7);
 
@@ -119,6 +125,7 @@ namespace testing1.ViewModels
                 {
                     MessageBox.Show("Invalid response from device.", "Read Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
+
                 _tcpHelper.Disconnect();
             }
             catch (Exception ex)
@@ -147,11 +154,11 @@ namespace testing1.ViewModels
 
                 byte[] config = new byte[84];
                 int offset = 0;
-                
+
                 // Static IP flag
                 BitConverter.GetBytes(Ethernet.IsStatic ? 1 : 0).CopyTo(config, offset);
                 offset += 4;
-                
+
                 // Helper function to copy strings
                 void CopyString(string value, int length)
                 {
@@ -159,20 +166,21 @@ namespace testing1.ViewModels
                     Array.Copy(bytes, 0, config, offset, Math.Min(bytes.Length, length));
                     offset += length;
                 }
-                
+
                 CopyString(Ethernet.IP, 16);
                 CopyString(Ethernet.Gateway, 16);
                 CopyString(Ethernet.Netmask, 16);
                 CopyString(Ethernet.DnsMain, 16);
                 CopyString(Ethernet.DnsBackup, 16);
-                
+
                 // Port
                 //BitConverter.GetBytes(Ethernet.Port).CopyTo(config, offset);
-                
+
                 _tcpHelper.SendCommand("SETNW", config);
-                _tcpHelper.Disconnect();
-                
+
+
                 MessageBox.Show("Ethernet configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                _tcpHelper.Disconnect();
             }
             catch (Exception ex)
             {
@@ -232,6 +240,135 @@ namespace testing1.ViewModels
             }
         }
 
+        // WiFi Configuration Methods
+        private void SendWifi()
+        {
+            if (string.IsNullOrWhiteSpace(DeviceIp))
+            {
+                MessageBox.Show("Please enter a valid device IP address.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                _tcpHelper = new TcpClientHelper(DeviceIp);
+                if (!_tcpHelper.Connect(DeviceIp))
+                {
+                    MessageBox.Show("Failed to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // WiFi configuration packet size: 16 + 64 + 4 + 16 + 16 + 16 = 132 bytes
+                byte[] config = new byte[132];
+                int offset = 0;
+
+                // Helper function to copy strings with specific length
+                void CopyString(string value, int length)
+                {
+                    var bytes = Encoding.ASCII.GetBytes((value ?? "").PadRight(length, '\0'));
+                    Array.Copy(bytes, 0, config, offset, Math.Min(bytes.Length, length));
+                    offset += length;
+                }
+
+                // SSID - 16 bytes
+                CopyString(Wifi.SSID, 16);
+
+                // Password - 64 bytes
+                CopyString(Wifi.Password, 64);
+
+                // Is_static flag - 4 bytes
+                BitConverter.GetBytes(Wifi.Is_static ? 1 : 0).CopyTo(config, offset);
+                offset += 4;
+
+                // Subnetmask - 16 bytes
+                CopyString(Wifi.Subnetmask, 16);
+
+                // DNS_main - 16 bytes
+                CopyString(Wifi.DNS_main, 16);
+
+                // DNS_backup - 16 bytes
+                CopyString(Wifi.DNS_backup, 16);
+
+                _tcpHelper.SendCommand("SETWIFI", config);
+
+                MessageBox.Show("WiFi configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                _tcpHelper.Disconnect(); // Disconnect after user clicks OK on success message
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error sending WiFi configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _tcpHelper?.Disconnect(); // Disconnect on exception (with null check)
+            }
+        }
+
+        private void ReadWifi()
+        {
+            if (string.IsNullOrWhiteSpace(DeviceIp))
+            {
+                MessageBox.Show("Please enter a valid device IP address.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                _tcpHelper = new TcpClientHelper(DeviceIp);
+                if (!_tcpHelper.Connect(DeviceIp))
+                {
+                    MessageBox.Show("Failed to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                _tcpHelper.SendCommand("GETWIFI");
+                var buffer = _tcpHelper.ReadResponse(132); // 132 bytes for WiFi config
+
+                if (buffer.Length < 132)
+                {
+                    MessageBox.Show("Invalid response from device.", "Read Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    _tcpHelper.Disconnect(); // Disconnect on error
+                    return;
+                }
+
+                int offset = 0;
+
+                // Helper function to read strings
+                string ReadString(int length)
+                {
+                    string result = Encoding.ASCII.GetString(buffer, offset, length).Trim('\0');
+                    offset += length;
+                    return result;
+                }
+
+                // SSID - 16 bytes
+                Wifi.SSID = ReadString(16);
+
+                // Password - 64 bytes
+                Wifi.Password = ReadString(64);
+
+                // Is_static flag - 4 bytes
+                Wifi.Is_static = BitConverter.ToInt32(buffer, offset) == 1;
+                offset += 4;
+
+                // Subnetmask - 16 bytes
+                Wifi.Subnetmask = ReadString(16);
+
+                // DNS_main - 16 bytes
+                Wifi.DNS_main = ReadString(16);
+
+                // DNS_backup - 16 bytes
+                Wifi.DNS_backup = ReadString(16);
+
+                OnPropertyChanged(nameof(Wifi));
+
+                MessageBox.Show("WiFi configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                _tcpHelper.Disconnect(); // Disconnect after user clicks OK on success message
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error reading WiFi configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _tcpHelper?.Disconnect(); // Disconnect on exception (with null check)
+            }
+        }
+
         private void ResetDevice()
         {
             _tcpHelper = new TcpClientHelper(DeviceIp);
@@ -252,4 +389,4 @@ namespace testing1.ViewModels
         private void OnPropertyChanged([CallerMemberName] string name = "")
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
-} 
+}

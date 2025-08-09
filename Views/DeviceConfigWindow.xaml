@@ -22,7 +22,7 @@
         <!-- Header -->
         <StackPanel Grid.Row="0" Margin="0,0,0,20">
             <TextBlock Text="Device Configuration" FontSize="24" FontWeight="Bold" Margin="0,-13,0,1" FontFamily="Segoe UI"/>
-            <TextBlock Text="Configure RS485 and Ethernet settings for the selected device" FontSize="14" Foreground="Gray" FontFamily="Segoe UI"/>
+            <TextBlock Text="Configure RS485, Ethernet and WiFi settings for the selected device" FontSize="14" Foreground="Gray" FontFamily="Segoe UI"/>
         </StackPanel>
 
         <!-- Main Content -->
@@ -147,6 +147,53 @@
                         </StackPanel>
                     </Grid>
                 </GroupBox>
+
+                <!-- WiFi Configuration -->
+                <GroupBox Header="WiFi Configuration" Margin="0,0,0,20" FontFamily="Segoe UI" FontWeight="Bold" FontSize="13">
+                    <Grid Margin="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <CheckBox Content="Static IP Configuration" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4" 
+                                  IsChecked="{Binding Wifi.Is_static}" Margin="0,0,0,10" FontWeight="SemiBold"/>
+
+                        <TextBlock Text="SSID:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
+                        <TextBox Text="{Binding Wifi.SSID}" Grid.Column="1" Grid.Row="1" Margin="0,5,20,5" FontWeight="Regular"/>
+
+                        <TextBlock Text="DNS Main:" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
+                        <TextBox Text="{Binding Wifi.DNS_main}" Grid.Column="3" Grid.Row="1" Margin="0,5,0,5" FontWeight="Regular"/>
+
+                        <TextBlock Text="Password:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
+                        <TextBox Text="{Binding Wifi.Password}" Grid.Column="1" Grid.Row="2" Margin="0,5,20,5" FontWeight="Regular"/>
+
+                        <TextBlock Text="DNS Backup:" Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
+                        <TextBox Text="{Binding Wifi.DNS_backup}" Grid.Column="3" Grid.Row="2" Margin="0,5,0,5" FontWeight="Regular"/>
+
+                        <TextBlock Text="Subnet Mask:" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
+                        <TextBox Text="{Binding Wifi.Subnetmask}" Grid.Column="1" Grid.Row="3" Margin="0,5,20,5" FontWeight="Regular"/>
+
+                        <!-- WiFi Buttons -->
+                        <StackPanel Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="4" Orientation="Horizontal" Margin="0,15,0,0">
+                            <Button Content="Read WiFi Config" Command="{Binding ReadWifiCommand}" FontWeight="SemiBold" FontSize="12"
+                                    Background="#255DD4" Foreground="White" Padding="15,8" Margin="0,0,10,0"/>
+                            <Button Content="Send WiFi Config" Command="{Binding SendWifiCommand}" FontWeight="SemiBold" FontSize="12"
+                                    Background="#255DD4" Foreground="White" Padding="15,8"/>
+                        </StackPanel>
+                    </Grid>
+                </GroupBox>
+
                 <!--Reset Buttons-->
                 <StackPanel Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="4" Orientation="Horizontal" Margin="17,1,0,0">
                     <Button Content="Reset Device" Command="{Binding ResetCommand}" FontWeight="SemiBold" FontSize="12"
