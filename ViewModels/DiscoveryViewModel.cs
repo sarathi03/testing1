@@ -578,7 +578,6 @@ namespace testing1.ViewModels
             var selectedDevices = AvailableDevices.Where(d => d.IsSelected)
                                                  .Select(ConvertToDeviceInfo)
                                                  .ToList();
-
             if (selectedDevices.Count == 0)
             {
                 System.Windows.MessageBox.Show("No devices selected. Please select devices to save.", "Information",
@@ -586,19 +585,21 @@ namespace testing1.ViewModels
                 return;
             }
 
-            // Check for duplicates
+            // Check for duplicate IP addresses (instead of MAC addresses)
             var existingConfigs = _configManager.LoadAllDeviceConfigs();
-            var alreadyAdded = selectedDevices.Where(d => existingConfigs.Any(cfg => cfg.DeviceInfo?.MAC == d.MAC)).ToList();
+            var alreadyAdded = selectedDevices.Where(d => existingConfigs.Any(cfg => cfg.DeviceInfo?.IP == d.IP)).ToList();
+
             if (alreadyAdded.Any())
             {
-                string macs = string.Join(", ", alreadyAdded.Select(d => d.MAC));
-                System.Windows.MessageBox.Show($"The following devices are already added and will not be added again: {macs}", "Duplicate Devices", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                string ips = string.Join(", ", alreadyAdded.Select(d => d.IP));
+                System.Windows.MessageBox.Show($"The following IP addresses are already configured and will not be added again: {ips}",
+                    "Duplicate IP Addresses", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
                 selectedDevices = selectedDevices.Where(d => !alreadyAdded.Contains(d)).ToList();
             }
+
             if (selectedDevices.Count == 0) return;
 
             bool success = _configManager.SaveMultipleDeviceConfigs(selectedDevices);
-
             System.Diagnostics.Debug.WriteLine($"Adding {selectedDevices.Count} selected devices... Success: {success}");
         }
 

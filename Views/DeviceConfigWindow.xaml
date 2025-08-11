@@ -9,7 +9,6 @@
     <Window.Resources>
         <converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
-        <converters:DateTimeToStringConverter x:Key="DateTimeToStringConverter"/>
     </Window.Resources>
 
     <Grid Margin="20">
@@ -102,6 +101,36 @@
                     </Grid>
                 </GroupBox>
 
+                <GroupBox Header="General Configuration" Margin="0,0,0,20" FontFamily="Segoe UI" FontWeight="Bold" FontSize="13">
+                    <Grid Margin="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <CheckBox Content = "Wifi" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4" 
+                                  IsChecked="{Binding General.IsWifi}" Margin="0,0,0,10" FontWeight="SemiBold"/>
+                        <CheckBox Content = "Ethernet" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="4" 
+                                 IsChecked="{Binding General.IsEthernet}" Margin="350,0,0,10" FontWeight="SemiBold"/>
+                        <TextBlock Text="Port:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" Margin="0,5,10,0" FontWeight="Normal"/>
+                        <TextBox Text="{Binding General.Port}" Grid.Column="1" Grid.Row="1" Margin="0,5,20,5" FontWeight="Regular"/>
+
+                        <StackPanel Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="4" Orientation="Horizontal" Margin="0,15,0,0">
+                            <Button Content="Read General Config" Command="{Binding ReadGeneralCommand}" FontWeight="SemiBold" FontSize="12"
+             Background="#255DD4" Foreground="White" Padding="15,8" Margin="0,0,10,0"/>
+                            <Button Content="Send General Config" Command="{Binding SendGeneralCommand}" FontWeight="SemiBold" FontSize="12"
+             Background="#255DD4" Foreground="White" Padding="15,8"/>
+                        </StackPanel>
+                    </Grid>
+                </GroupBox>
+
                 <!-- Ethernet Configuration -->
                 <GroupBox Header="Ethernet Configuration" Margin="0,0,0,20" FontFamily="Segoe UI" FontWeight="Bold" FontSize="13">
                     <Grid Margin="10">
@@ -169,26 +198,26 @@
                   IsChecked="{Binding Wifi.Is_static}" Margin="0,0,0,10" FontWeight="SemiBold"/>
                         <TextBlock Text="SSID:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding Wifi.SSID}" Grid.Column="1" Grid.Row="1" Margin="0,5,20,5" FontWeight="Regular"/>
-                        
+
                         <TextBlock Text="DNS Main:" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding Wifi.DNS_main}" Grid.Column="3" Grid.Row="1" Margin="0,5,0,5" FontWeight="Regular"/>
-                        
+
                         <TextBlock Text="Password:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding Wifi.Password}" Grid.Column="1" Grid.Row="2" Margin="0,5,20,5" FontWeight="Regular"/>
-                        
+
                         <TextBlock Text="DNS Backup:" Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding Wifi.DNS_backup}" Grid.Column="3" Grid.Row="2" Margin="0,5,0,5" FontWeight="Regular"/>
-                        
+
                         <TextBlock Text="Subnet Mask:" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding Wifi.netmask}" Grid.Column="1" Grid.Row="3" Margin="0,5,20,5" FontWeight="Regular"/>
-                        
+
                         <TextBlock Text="Gateway" Grid.Column="2" Grid.Row="3" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding Wifi.Gateway}" Grid.Column="3" Grid.Row="3" Margin="0,5,0,5" FontWeight="Regular"/>
-                        
+
                         <TextBlock Text="IP:" Grid.Column="0" Grid.Row="4" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding Wifi.IP}" Grid.Column="1" Grid.Row="4" Margin="0,5,20,5" FontWeight="Regular"/>
-                        
-                        
+
+
                         <!-- WiFi Buttons moved to row 5 -->
                         <StackPanel Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="4" Orientation="Horizontal" Margin="0,15,0,0">
                             <Button Content="Read WiFi Config" Command="{Binding ReadWifiCommand}" FontWeight="SemiBold" FontSize="12"

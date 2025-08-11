@@ -236,6 +236,11 @@ namespace testing1.ViewModels
             groupByLocationItem.Click += (s, e) => GroupByLocation();
             filterMenu.Items.Add(groupByLocationItem);
 
+            // Group by MAC Address
+            var groupByMacItem = new System.Windows.Controls.MenuItem { Header = "🔗 Group by MAC Address" };
+            groupByMacItem.Click += (s, e) => GroupByMacAddress();
+            filterMenu.Items.Add(groupByMacItem);
+
             // Separator
             filterMenu.Items.Add(new System.Windows.Controls.Separator());
 
@@ -284,6 +289,21 @@ namespace testing1.ViewModels
         private void GroupByLocation()
         {
             var groupedDevices = Devices.OrderBy(d => d.DeviceInfo.Location).ThenBy(d => d.DeviceInfo.DeviceName).ToList();
+            Devices.Clear();
+            foreach (var device in groupedDevices)
+            {
+                Devices.Add(device);
+            }
+        }
+
+        private void GroupByMacAddress()
+        {
+            // Group devices by MAC address, then order by MAC address and device name
+            var groupedDevices = Devices
+                .OrderBy(d => d.DeviceInfo.MAC ?? "Unknown")
+                .ThenBy(d => d.DeviceInfo.DeviceName)
+                .ToList();
+
             Devices.Clear();
             foreach (var device in groupedDevices)
             {
