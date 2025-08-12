@@ -256,53 +256,14 @@ namespace testing1.ViewModels
             }
         }
 
-       
-        public void SendGeneral()
-        {
-            try
-            {
-                _tcpHelper = new TcpClientHelper(DeviceIp);
-                if (!_tcpHelper.Connect(DeviceIp))
-                {
-                    MessageBox.Show("Failed to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
 
-                byte[] config = new byte[12];
-                int offset = 0;
-
-                // IsWifi as int (0 or 1)
-                BitConverter.GetBytes(General.IsWifi ? 1 : 0).CopyTo(config, offset);
-                offset += 4;
-
-                // IsEthernet as int (0 or 1)
-                BitConverter.GetBytes(General.IsEthernet ? 1 : 0).CopyTo(config, offset);
-                offset += 4;
-
-                // Port as int
-                BitConverter.GetBytes(General.Port).CopyTo(config, offset);
-
-                // Send command
-                _tcpHelper.SendCommand("SETGEN", config);
-
-                MessageBox.Show("General configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                _tcpHelper.Disconnect();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error sending General configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        //Read General
-        public void ReadGeneral()
+        private void SendGeneral()
         {
             if (string.IsNullOrWhiteSpace(DeviceIp))
             {
                 MessageBox.Show("Please enter a valid device IP address.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-
             try
             {
                 _tcpHelper = new TcpClientHelper(DeviceIp);
@@ -311,42 +272,59 @@ namespace testing1.ViewModels
                     MessageBox.Show("Failed to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
+                byte[] config = new byte[8];
+                Buffer.BlockCopy(BitConverter.GetBytes(General.NetMode), 0, config, 0, 4);
+                Buffer.BlockCopy(BitConverter.GetBytes(General.Port), 0, config, 4, 4);
+                _tcpHelper.SendCommand("SETGEN", config);
+                MessageBox.Show("General configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                _tcpHelper.Disconnect(); // Disconnect after user clicks OK on success message
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error sending General configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _tcpHelper?.Disconnect(); // Disconnect on exception (with null check)
+            }
+        }
 
-                // Send request to get general config
-                _tcpHelper.SendCommand("GETGEN");
 
-                // Expecting 12 bytes: int(IsWifi) + int(IsEthernet) + int(Port)
-                var buffer = _tcpHelper.ReadResponse(12);
-                if (buffer.Length < 12)
+        //Read General
+        private void ReadGeneral()
+        {
+            if (string.IsNullOrWhiteSpace(DeviceIp))
+            {
+                MessageBox.Show("Please enter a valid device IP address.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            try
+            {
+                _tcpHelper = new TcpClientHelper(DeviceIp);
+                if (!_tcpHelper.Connect(DeviceIp))
                 {
-                    MessageBox.Show("Invalid response from device.", "Read Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    _tcpHelper.Disconnect();
+                    MessageBox.Show("Failed to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-
-                int offset = 0;
-
-                // Convert bytes to values
-                General.IsWifi = BitConverter.ToInt32(buffer, offset) == 1;
-                offset += 4;
-
-                General.IsEthernet = BitConverter.ToInt32(buffer, offset) == 1;
-                offset += 4;
-
-                General.Port = BitConverter.ToInt32(buffer, offset);
-
-                // Notify UI
-                OnPropertyChanged(nameof(General));
-
-                MessageBox.Show("General configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                _tcpHelper.SendCommand("GETGEN");
+                var data = _tcpHelper.ReadResponse(8);
+                if (data.Length >= 8)
+                {
+                    General.NetMode = BitConverter.ToInt32(data, 0);
+                    General.Port = BitConverter.ToInt32(data, 4);
+                    OnPropertyChanged(nameof(General));
+                    MessageBox.Show("General configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Invalid response from device.", "Read Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
                 _tcpHelper.Disconnect();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error reading General configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                _tcpHelper?.Disconnect();
+                _tcpHelper?.Disconnect(); // Disconnect on exception (with null check)
             }
         }
+
 
         // WiFi Configuration Methods
         private void SendWifi()

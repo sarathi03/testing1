@@ -126,6 +126,8 @@ namespace testing1.ViewModels
             _statusMonitor.DeviceStatusChanged += OnDeviceStatusChanged;
             _statusMonitor.StartMonitoring();
 
+
+
             // Load YAML configs from config folder
             LoadYamlConfigs();
         }

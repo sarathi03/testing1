@@ -94,6 +94,8 @@ namespace testing1.Models
             }
         }
 
+        public bool General { get; internal set; }
+
         public void UpdateLastModified()
         {
             LastModified = DateTime.Now;

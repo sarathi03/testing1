@@ -22,7 +22,7 @@ namespace testing1.Services
             _devicesToMonitor = new List<DeviceInfo>();
             _monitorTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromSeconds(3) // Ping check every 3s
+                Interval = TimeSpan.FromSeconds(1) // Ping check every 3s
             };
             _monitorTimer.Tick += OnMonitorTimerTick;
         }
@@ -106,7 +106,7 @@ namespace testing1.Services
             {
                 using (var ping = new Ping())
                 {
-                    var reply = await ping.SendPingAsync(ipAddress, 2000);
+                    var reply = await ping.SendPingAsync(ipAddress, 1000);
                     return reply.Status == IPStatus.Success ? DeviceStatus.Connected : DeviceStatus.Offline;
                 }
             }

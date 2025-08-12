@@ -284,6 +284,13 @@
                                     Width="130"
                                     IsReadOnly="True"/>
 
+                <!-- MAC Address Column -->
+                <DataGridTextColumn Header="Connected" 
+                    Binding="{Binding General.ConnectionStatusText}" 
+                    FontFamily="Segoe UI" FontSize="14"
+                    Width="130"
+                    IsReadOnly="True"/>
+
                 <!-- Actions Column -->
                 <!-- Actions Column -->
                 <DataGridTemplateColumn Header="Actions" Width="180" CanUserSort="False">

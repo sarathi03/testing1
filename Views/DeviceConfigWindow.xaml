@@ -115,12 +115,14 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <CheckBox Content = "Wifi" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4" 
-                                  IsChecked="{Binding General.IsWifi}" Margin="0,0,0,10" FontWeight="SemiBold"/>
-                        <CheckBox Content = "Ethernet" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="4" 
-                                 IsChecked="{Binding General.IsEthernet}" Margin="350,0,0,10" FontWeight="SemiBold"/>
                         <TextBlock Text="Port:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding General.Port}" Grid.Column="1" Grid.Row="1" Margin="0,5,20,5" FontWeight="Regular"/>
+
+                        <TextBlock Text="NetMode:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Top" Margin="0,0,10,0" FontWeight="Normal"/>
+                        <ComboBox Grid.Column="1" Grid.Row="0" Margin="0,0,0,10" SelectedValue="{Binding General.NetMode}" SelectedValuePath="Tag" FontWeight="Regular">
+                            <ComboBoxItem Content="Wifi" Tag="1"/>
+                            <ComboBoxItem Content="Ethernet" Tag="0"/>
+                        </ComboBox>
 
                         <StackPanel Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="4" Orientation="Horizontal" Margin="0,15,0,0">
                             <Button Content="Read General Config" Command="{Binding ReadGeneralCommand}" FontWeight="SemiBold" FontSize="12"
