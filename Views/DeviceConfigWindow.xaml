@@ -118,7 +118,7 @@
                         <TextBlock Text="Port:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding General.Port}" Grid.Column="1" Grid.Row="1" Margin="0,5,20,5" FontWeight="Regular"/>
 
-                        <TextBlock Text="NetMode:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Top" Margin="0,0,10,0" FontWeight="Normal"/>
+                        <TextBlock Text="Network Mode:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Top" Margin="0,0,10,0" FontWeight="Normal"/>
                         <ComboBox Grid.Column="1" Grid.Row="0" Margin="0,0,0,10" SelectedValue="{Binding General.NetMode}" SelectedValuePath="Tag" FontWeight="Regular">
                             <ComboBoxItem Content="Wifi" Tag="1"/>
                             <ComboBoxItem Content="Ethernet" Tag="0"/>
