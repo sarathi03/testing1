@@ -71,6 +71,64 @@
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
 
+        <!-- Popup Button Styles -->
+        <Style x:Key="PopupOptionButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="80"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Margin" Value="5,2"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#333"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F0F8FF"/>
+                    <Setter Property="BorderBrush" Value="#255DD4"/>
+                </Trigger>
+                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="True">
+                    <Setter Property="Background" Value="#255DD4"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="BorderBrush" Value="#255DD4"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="PopupConfigureButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="100"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Margin" Value="0,10,0,5"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="#CCCCCC"/>
+            <Setter Property="Foreground" Value="#666"/>
+            <Setter Property="IsEnabled" Value="False"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsConfigurationTypeSelected}" Value="True">
+                    <Setter Property="Background" Value="#255DD4"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="IsEnabled" Value="True"/>
+                </DataTrigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Trigger.Setters>
+                        <Setter Property="Background" Value="#1E4DB7"/>
+                    </Trigger.Setters>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Configuration Popup Style -->
+        <Style x:Key="ConfigurationPopupStyle" TargetType="Popup">
+            <Setter Property="AllowsTransparency" Value="True"/>
+            <Setter Property="PopupAnimation" Value="Fade"/>
+            <Setter Property="Placement" Value="Mouse"/>
+            <Setter Property="PlacementTarget" Value="{Binding RelativeSource={RelativeSource TemplatedParent}}"/>
+        </Style>
+
         <!-- DataGrid Row Style - Complete removal of selection highlighting -->
         <Style x:Key="DataGridRowStyle" TargetType="DataGridRow">
             <Setter Property="Background" Value="White"/>
@@ -130,8 +188,6 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-
-
         <!-- Header -->
         <TextBlock Grid.Row="0" 
                    Text="Device Management Panel" 
@@ -144,7 +200,6 @@
         <!-- Search and Action Bar -->
         <Grid Grid.Row="1" Margin="0,0,0,15">
             <Grid.ColumnDefinitions>
-
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
@@ -173,7 +228,6 @@
                        Width="20" 
                        Height="20"
                        Opacity="0.8"/>
-                    <!-- Lower opacity makes it appear more delicate -->
                 </Button>
             </StackPanel>
 
@@ -211,10 +265,8 @@
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="DataGridColumnHeader">
                     <Setter Property="FontFamily" Value="Segoe UI"/>
-                    <!-- or your preferred font -->
                     <Setter Property="FontSize" Value="14"/>
                     <Setter Property="FontWeight" Value="SemiBold"/>
-                    <!-- or your preferred size -->
                 </Style>
             </DataGrid.ColumnHeaderStyle>
 
@@ -284,39 +336,144 @@
                                     Width="130"
                                     IsReadOnly="True"/>
 
-                <!-- MAC Address Column -->
-                <DataGridTextColumn Header="Connected" 
-                    Binding="{Binding General.ConnectionStatusText}" 
-                    FontFamily="Segoe UI" FontSize="14"
-                    Width="130"
-                    IsReadOnly="True"/>
+                <!-- Connection Status Column -->
+                <DataGridTemplateColumn Header="Connected" Width="130" CanUserSort="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <!-- Connection Status Indicator -->
+                                <Ellipse Width="8" Height="8" Margin="0,0,5,0" VerticalAlignment="Center">
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Fill" Value="Gray"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding DeviceInfo.ConnectionStatus}" Value="Ethernet">
+                                                    <Setter Property="Fill" Value="Green"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding DeviceInfo.ConnectionStatus}" Value="WiFi">
+                                                    <Setter Property="Fill" Value="Green"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding DeviceInfo.ConnectionStatus}" Value="NotConnected">
+                                                    <Setter Property="Fill" Value="Gray"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
 
-                <!-- Actions Column -->
-                <!-- Actions Column -->
+                                <!-- Connection Status Text -->
+                                <TextBlock Text="{Binding DeviceInfo.ConnectionStatusText}" 
+                           FontFamily="Segoe UI" 
+                           FontSize="12"
+                           VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="Gray"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding DeviceInfo.ConnectionStatus}" Value="Ethernet">
+                                                    <Setter Property="Foreground" Value="Green"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding DeviceInfo.ConnectionStatus}" Value="WiFi">
+                                                    <Setter Property="Foreground" Value="Green"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding DeviceInfo.ConnectionStatus}" Value="NotConnected">
+                                                    <Setter Property="Foreground" Value="Gray"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <!-- Actions Column with Configuration Popup -->
                 <DataGridTemplateColumn Header="Actions" Width="180" CanUserSort="False">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <!-- Configure Button with Icon -->
-                                <Button Click="ConfigureButton_Click"
-                        Style="{StaticResource ConfigureButtonStyle}"
-                        Margin="2">
-                                    <StackPanel Orientation="Horizontal">
+                                <!-- Configure Button with Popup -->
+                                <Grid>
+                                    <Button x:Name="ConfigureButton"
+                                            Style="{StaticResource ConfigureButtonStyle}"
+                                            Margin="2"
+                                            MouseEnter="ConfigureButton_MouseEnter"
+                                            MouseLeave="ConfigureButton_MouseLeave">
+                                        <TextBlock Text="Configure" VerticalAlignment="Center"/>
+                                    </Button>
 
-                                        <TextBlock Text="Configure" 
-                                   VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button>
+                                    <!-- Configuration Popup -->
+                                    <Popup x:Name="ConfigurationPopup"
+                                           Style="{StaticResource ConfigurationPopupStyle}"
+                                           PlacementTarget="{Binding ElementName=ConfigureButton}"
+                                           Placement="Bottom"
+                                           HorizontalOffset="-30"
+                                           VerticalOffset="5"
+                                           StaysOpen="False"
+                                           MouseLeave="ConfigurationPopup_MouseLeave">
+                                        <Border Background="White" 
+                                                BorderBrush="#CCCCCC" 
+                                                BorderThickness="1" 
+                                                CornerRadius="5"
+                                                Margin="5"
+                                                Effect="{DynamicResource {x:Static SystemParameters.DropShadowKey}}">
+                                            <StackPanel Margin="15,12">
+                                                <TextBlock Text="Are You Configuring to:" 
+                                                           FontWeight="SemiBold" 
+                                                           FontSize="12" 
+                                                           Margin="0,0,0,8"
+                                                           HorizontalAlignment="Center"/>
 
-                                <!-- Remove Button with Icon -->
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                    <Button x:Name="WifiButton" 
+                                                            Content="Wi-Fi" 
+                                                            Style="{StaticResource PopupOptionButtonStyle}"
+                                                            Click="WifiButton_Click"
+                                                            Tag="{Binding}"/>
+                                                    <Button x:Name="EthernetButton" 
+                                                            Content="Ethernet" 
+                                                            Style="{StaticResource PopupOptionButtonStyle}"
+                                                            Click="EthernetButton_Click"
+                                                            Tag="{Binding}"/>
+                                                </StackPanel>
+
+                                                <StackPanel Orientation="Horizontal" 
+                                                            HorizontalAlignment="Center" 
+                                                            Margin="0,8,0,0">
+                                                    <TextBlock Text="Port:" 
+                                                               VerticalAlignment="Center" 
+                                                               Margin="0,0,8,0"
+                                                               FontSize="11"/>
+                                                    <TextBox x:Name="PortTextBox" 
+                                                             Text="502" 
+                                                             Width="60" 
+                                                             Height="24"
+                                                             FontSize="11"
+                                                             VerticalContentAlignment="Center"
+                                                             BorderBrush="#CCCCCC"
+                                                             BorderThickness="1"/>
+                                                </StackPanel>
+
+                                                <Button x:Name="PopupConfigureButton"
+                                                        Content="Configure"
+                                                        Style="{StaticResource PopupConfigureButtonStyle}"
+                                                        HorizontalAlignment="Center"
+                                                        Click="PopupConfigureButton_Click"
+                                                        Tag="{Binding}"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </Popup>
+                                </Grid>
+
+                                <!-- Remove Button -->
                                 <Button Command="{Binding DataContext.RemoveDeviceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                        CommandParameter="{Binding}"
-                        Style="{StaticResource RemoveButtonStyle}"
-                        Margin="2">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Remove" 
-                                   VerticalAlignment="Center"/>
-                                    </StackPanel>
+                                        CommandParameter="{Binding}"
+                                        Style="{StaticResource RemoveButtonStyle}"
+                                        Margin="2">
+                                    <TextBlock Text="Remove" VerticalAlignment="Center"/>
                                 </Button>
                             </StackPanel>
                         </DataTemplate>
@@ -351,7 +508,7 @@
                            FontSize="12"/>
             </StackPanel>
 
-            <!-- Loading Indicator - Using built-in BooleanToVisibilityConverter -->
+            <!-- Loading Indicator -->
             <StackPanel Grid.Column="1" 
                         Orientation="Horizontal" 
                         VerticalAlignment="Center" 
@@ -379,7 +536,7 @@
                 </Border>
             </StackPanel>
 
-            <!-- Selected Device Info - Using DataTrigger instead of NullToVisibilityConverter -->
+            <!-- Selected Device Info -->
             <StackPanel Grid.Column="2" 
                         Orientation="Horizontal" 
                         VerticalAlignment="Center" 

@@ -14,6 +14,7 @@ namespace testing1.Models
         private DeviceStatus _status;
         private DateTime _lastSeen;
         private string _model;
+        private ConnectionStatus _connectionStatus = ConnectionStatus.NotConnected;
 
         public string IP
         {
@@ -106,7 +107,6 @@ namespace testing1.Models
             }
         }
 
-
         public string Model
         {
             get => _model;
@@ -120,12 +120,41 @@ namespace testing1.Models
             }
         }
 
+        public ConnectionStatus ConnectionStatus
+        {
+            get => _connectionStatus;
+            set
+            {
+                if (_connectionStatus != value)
+                {
+                    _connectionStatus = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(ConnectionStatusText));
+                }
+            }
+        }
+
+        public string ConnectionStatusText
+        {
+            get
+            {
+                return ConnectionStatus switch
+                {
+                    ConnectionStatus.Ethernet => "Ethernet",
+                    ConnectionStatus.WiFi => "Wi-Fi",
+                    ConnectionStatus.NotConnected => "Not Connected",
+                    _ => "Unknown"
+                };
+            }
+        }
+
         public DeviceInfo()
         {
             LastSeen = DateTime.Now;
             Status = DeviceStatus.Unknown;
             DeviceName = "Unknown Device";
             Location = "Unknown Location";
+            ConnectionStatus = ConnectionStatus.NotConnected;
         }
 
         public DeviceInfo(string ip, int port, string mac = null) : this()
@@ -152,5 +181,12 @@ namespace testing1.Models
         NotConnected,
         Error,
         Discovered
+    }
+
+    public enum ConnectionStatus
+    {
+        NotConnected,
+        Ethernet,
+        WiFi
     }
 }

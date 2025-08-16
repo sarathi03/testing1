@@ -19,6 +19,7 @@ namespace testing1.ViewModels
         private string _searchText = string.Empty;
         private bool _isLoading;
         private DeviceStatusMonitor _statusMonitor;
+        private NetModeMonitor _netModeMonitor;
         private YamlFileManager _configManager;
 
         public ObservableCollection<DeviceManagementModel> Devices
@@ -126,10 +127,27 @@ namespace testing1.ViewModels
             _statusMonitor.DeviceStatusChanged += OnDeviceStatusChanged;
             _statusMonitor.StartMonitoring();
 
-
+            // Initialize NetMode monitor
+            _netModeMonitor = new NetModeMonitor();
+            _netModeMonitor.NetModeChanged += OnNetModeChanged;
+            _netModeMonitor.StartMonitoring();
 
             // Load YAML configs from config folder
             LoadYamlConfigs();
+        }
+
+        // NetMode changed event handler
+        private void OnNetModeChanged(object sender, NetModeChangedEventArgs e)
+        {
+            System.Windows.Application.Current?.Dispatcher?.Invoke(() =>
+            {
+                var deviceModel = Devices.FirstOrDefault(d => d.DeviceInfo?.IP == e.Device.IP);
+                if (deviceModel != null)
+                {
+                    deviceModel.DeviceInfo.ConnectionStatus = e.NewConnectionStatus;
+                    System.Diagnostics.Debug.WriteLine($"NetMode updated for {e.Device.IP}: {e.NewConnectionStatus}");
+                }
+            });
         }
 
         // Subscribe to device property changes for auto-save
@@ -363,8 +381,9 @@ namespace testing1.ViewModels
 
                         Devices.Add(deviceModel);
 
-                        // Add to status monitor
+                        // Add to both monitors
                         _statusMonitor.AddDevice(deviceModel.DeviceInfo);
+                        _netModeMonitor.AddDevice(deviceModel.DeviceInfo);
                     }
                 }
 
@@ -388,8 +407,9 @@ namespace testing1.ViewModels
 
                             Devices.Add(deviceModel);
 
-                            // Add to status monitor
+                            // Add to both monitors
                             _statusMonitor.AddDevice(deviceModel.DeviceInfo);
+                            _netModeMonitor.AddDevice(deviceModel.DeviceInfo);
 
                             // Convert legacy config to new format
                             Task.Run(() => SaveDeviceConfigAsync(deviceModel));
@@ -432,10 +452,11 @@ namespace testing1.ViewModels
 
             Devices.Add(deviceModel);
 
-            // Add to status monitor
+            // Add to both monitors
             if (deviceModel.DeviceInfo != null)
             {
                 _statusMonitor.AddDevice(deviceModel.DeviceInfo);
+                _netModeMonitor.AddDevice(deviceModel.DeviceInfo);
             }
 
             // Save the new device to YAML
@@ -494,10 +515,11 @@ namespace testing1.ViewModels
                     // Unsubscribe from property changes
                     UnsubscribeFromDeviceChanges(SelectedDevice);
 
-                    // Remove from status monitor
+                    // Remove from both monitors
                     if (SelectedDevice.DeviceInfo != null)
                     {
                         _statusMonitor.RemoveDevice(SelectedDevice.DeviceInfo);
+                        _netModeMonitor.RemoveDevice(SelectedDevice.DeviceInfo);
                     }
 
                     // Remove config file using YamlFileManager
@@ -531,6 +553,7 @@ namespace testing1.ViewModels
                     $"IP Address: {SelectedDevice.DeviceInfo.IP}\n" +
                     $"Location: {SelectedDevice.DeviceInfo.Location}\n" +
                     $"Status: {SelectedDevice.DeviceInfo.Status}\n" +
+                    $"Connection: {SelectedDevice.DeviceInfo.ConnectionStatusText}\n" +
                     $"Last Seen: {SelectedDevice.DeviceInfo.LastSeen:yyyy-MM-dd HH:mm}",
                     "Configure Device",
                     System.Windows.MessageBoxButton.OK,
@@ -640,6 +663,16 @@ namespace testing1.ViewModels
                     deviceModel.DeviceInfo.Status = e.NewStatus;
                     deviceModel.DeviceInfo.LastSeen = e.Device.LastSeen;
                     UpdateDeviceCounts();
+
+                    // Notify NetModeMonitor of status changes
+                    if (e.NewStatus == DeviceStatus.Connected)
+                    {
+                        _netModeMonitor.OnDeviceConnected(e.Device);
+                    }
+                    else if (e.NewStatus == DeviceStatus.Offline)
+                    {
+                        _netModeMonitor.OnDeviceDisconnected(e.Device);
+                    }
                 }
             });
         }
@@ -660,6 +693,13 @@ namespace testing1.ViewModels
                 _statusMonitor.StopMonitoring();
                 _statusMonitor.DeviceStatusChanged -= OnDeviceStatusChanged;
                 _statusMonitor = null;
+            }
+
+            if (_netModeMonitor != null)
+            {
+                _netModeMonitor.StopMonitoring();
+                _netModeMonitor.NetModeChanged -= OnNetModeChanged;
+                _netModeMonitor = null;
             }
 
             _configManager = null;

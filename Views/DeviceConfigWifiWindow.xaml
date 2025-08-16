@@ -1,8 +1,8 @@
-<Window x:Class="testing1.Views.DeviceConfigWindow"
+﻿<Window x:Class="testing1.Views.DeviceConfigWifiWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:converters="clr-namespace:testing1.Converters"
-        Title="Device Configuration" Height="600" Width="800"
+        Title="WiFi Device Configuration" Height="600" Width="800"
         Icon="pack://application:,,,/Images/MachDatumLogo2.png"
         WindowStartupLocation="CenterOwner" ResizeMode="CanResize">
 
@@ -20,8 +20,8 @@
 
         <!-- Header -->
         <StackPanel Grid.Row="0" Margin="0,0,0,20">
-            <TextBlock Text="Device Configuration" FontSize="24" FontWeight="Bold" Margin="0,-13,0,1" FontFamily="Segoe UI"/>
-            <TextBlock Text="Configure RS485, Ethernet and WiFi settings for the selected device" FontSize="14" Foreground="Gray" FontFamily="Segoe UI"/>
+            <TextBlock Text="WiFi Device Configuration" FontSize="24" FontWeight="Bold" Margin="0,-13,0,1" FontFamily="Segoe UI"/>
+            <TextBlock Text="Configure RS485 and WiFi settings for the selected device" FontSize="14" Foreground="Gray" FontFamily="Segoe UI"/>
         </StackPanel>
 
         <!-- Main Content -->
@@ -101,84 +101,6 @@
                     </Grid>
                 </GroupBox>
 
-                <GroupBox Header="General Configuration" Margin="0,0,0,20" FontFamily="Segoe UI" FontWeight="Bold" FontSize="13">
-                    <Grid Margin="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Text="Port:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" Margin="0,5,10,0" FontWeight="Normal"/>
-                        <TextBox Text="{Binding General.Port}" Grid.Column="1" Grid.Row="1" Margin="0,5,20,5" FontWeight="Regular"/>
-
-                        <TextBlock Text="NetMode:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Top" Margin="0,0,10,0" FontWeight="Normal"/>
-                        <ComboBox Grid.Column="1" Grid.Row="0" Margin="0,0,0,10" SelectedValue="{Binding General.NetMode}" SelectedValuePath="Tag" FontWeight="Regular">
-                            <ComboBoxItem Content="Wifi" Tag="1"/>
-                            <ComboBoxItem Content="Ethernet" Tag="0"/>
-                        </ComboBox>
-
-                        <StackPanel Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="4" Orientation="Horizontal" Margin="0,15,0,0">
-                            <Button Content="Read General Config" Command="{Binding ReadGeneralCommand}" FontWeight="SemiBold" FontSize="12"
-             Background="#255DD4" Foreground="White" Padding="15,8" Margin="0,0,10,0"/>
-                            <Button Content="Send General Config" Command="{Binding SendGeneralCommand}" FontWeight="SemiBold" FontSize="12"
-             Background="#255DD4" Foreground="White" Padding="15,8"/>
-                        </StackPanel>
-                    </Grid>
-                </GroupBox>
-
-                <!-- Ethernet Configuration -->
-                <GroupBox Header="Ethernet Configuration" Margin="0,0,0,20" FontFamily="Segoe UI" FontWeight="Bold" FontSize="13">
-                    <Grid Margin="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <CheckBox Content="Static IP Configuration" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4" 
-                                  IsChecked="{Binding Ethernet.IsStatic}" Margin="0,0,0,10" FontWeight="SemiBold"/>
-
-                        <TextBlock Text="IP Address:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
-                        <TextBox Text="{Binding Ethernet.IP}" Grid.Column="1" Grid.Row="1" Margin="0,5,20,5" FontWeight="Regular"/>
-
-                        <TextBlock Text="Gateway:" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
-                        <TextBox Text="{Binding Ethernet.Gateway}" Grid.Column="3" Grid.Row="1" Margin="0,5,0,5" FontWeight="Regular"/>
-
-                        <TextBlock Text="Netmask:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
-                        <TextBox Text="{Binding Ethernet.Netmask}" Grid.Column="1" Grid.Row="2" Margin="0,5,20,5" FontWeight="Regular"/>
-
-                        <TextBlock Text="DNS Primary:" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
-                        <TextBox Text="{Binding Ethernet.DnsMain}" Grid.Column="1" Grid.Row="3" Margin="0,5,20,5" FontWeight="Regular"/>
-
-                        <TextBlock Text="DNS Backup:" Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
-                        <TextBox Text="{Binding Ethernet.DnsBackup}" Grid.Column="3" Grid.Row="2" Margin="0,5,0,5" FontWeight="Regular"/>
-
-                        <!-- Ethernet Buttons -->
-                        <StackPanel Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="4" Orientation="Horizontal" Margin="0,15,0,0">
-                            <Button Content="Read Ethernet Config" Command="{Binding ReadEthernetCommand}" FontWeight="SemiBold" FontSize="12"
-                                    Background="#255DD4" Foreground="White" Padding="15,8" Margin="0,0,10,0"/>
-                            <Button Content="Send Ethernet Config" Command="{Binding SendEthernetCommand}" FontWeight="SemiBold" FontSize="12"
-                                    Background="#255DD4" Foreground="White" Padding="15,8"/>
-                        </StackPanel>
-                    </Grid>
-                </GroupBox>
-
                 <!-- WiFi Configuration -->
                 <GroupBox Header="WiFi Configuration" Margin="0,0,0,20" FontFamily="Segoe UI" FontWeight="Bold" FontSize="13">
                     <Grid Margin="10">
@@ -218,7 +140,6 @@
 
                         <TextBlock Text="IP:" Grid.Column="0" Grid.Row="4" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding Wifi.IP}" Grid.Column="1" Grid.Row="4" Margin="0,5,20,5" FontWeight="Regular"/>
-
 
                         <!-- WiFi Buttons moved to row 5 -->
                         <StackPanel Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="4" Orientation="Horizontal" Margin="0,15,0,0">

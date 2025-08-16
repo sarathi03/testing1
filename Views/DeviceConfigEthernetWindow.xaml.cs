@@ -1,11 +1,11 @@
-using System.Windows;
+﻿using System.Windows;
 using testing1.ViewModels;
 
 namespace testing1.Views
 {
-    public partial class DeviceConfigWindow : Window
+    public partial class DeviceConfigEthernetWindow : Window
     {
-        public DeviceConfigWindow(string deviceIp = null, string macAddress = null)
+        public DeviceConfigEthernetWindow(string deviceIp = null, string macAddress = null)
         {
             InitializeComponent();
             var vm = new DeviceConfigViewModel();
@@ -19,4 +19,4 @@ namespace testing1.Views
             this.Close();
         }
     }
-} 
+}
