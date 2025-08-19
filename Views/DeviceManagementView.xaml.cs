@@ -1,24 +1,19 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
 using testing1.Models;
 using testing1.ViewModels;
-using testing1.Views;
-using System.ComponentModel;
 
 namespace testing1.Views
 {
     public partial class DeviceManagementView : UserControl, IDisposable
     {
-        public DeviceManagementViewModel ViewModel { get; private set; }
+        public DeviceManagementViewModel ViewModel { get; set; }
         public event EventHandler NavigateToDiscovery;
 
         private DispatcherTimer _popupTimer;
-        private string _selectedConfigType = "";
-        private bool _isConfigurationTypeSelected = false;
 
         public DeviceManagementView()
         {
@@ -26,7 +21,7 @@ namespace testing1.Views
             ViewModel = new DeviceManagementViewModel();
             DataContext = ViewModel;
 
-            // Initialize popup timer
+            // Initialize popup timer for hover functionality
             _popupTimer = new DispatcherTimer();
             _popupTimer.Interval = TimeSpan.FromMilliseconds(200);
             _popupTimer.Tick += PopupTimer_Tick;
@@ -76,11 +71,18 @@ namespace testing1.Views
             NavigateToDiscoveryView();
         }
 
-        #region Configuration Popup Event Handlers
+        // Method to get current selected device
+        public DeviceManagementModel GetSelectedDevice()
+        {
+            return ViewModel?.SelectedDevice;
+        }
+
+        #region Configuration Hover Popup Event Handlers
 
         private void ConfigureButton_MouseEnter(object sender, MouseEventArgs e)
         {
             _popupTimer.Stop();
+            _popupTimer.Tag = sender; // Store the button reference
             _popupTimer.Start();
         }
 
@@ -90,7 +92,7 @@ namespace testing1.Views
 
             // Small delay before hiding to allow mouse to move to popup
             var hideTimer = new DispatcherTimer();
-            hideTimer.Interval = TimeSpan.FromMilliseconds(100);
+            hideTimer.Interval = TimeSpan.FromMilliseconds(150);
             hideTimer.Tick += (s, args) =>
             {
                 hideTimer.Stop();
@@ -100,7 +102,6 @@ namespace testing1.Views
                     if (popup != null && !popup.IsMouseOver)
                     {
                         popup.IsOpen = false;
-                        ResetPopupState(popup);
                     }
                 }
             };
@@ -109,10 +110,9 @@ namespace testing1.Views
 
         private void ConfigurationPopup_MouseLeave(object sender, MouseEventArgs e)
         {
-            if (sender is Popup popup)
+            if (sender is System.Windows.Controls.Primitives.Popup popup)
             {
                 popup.IsOpen = false;
-                ResetPopupState(popup);
             }
         }
 
@@ -120,64 +120,121 @@ namespace testing1.Views
         {
             _popupTimer.Stop();
 
-            // Find the configure button that was hovered
-            var button = Mouse.DirectlyOver as FrameworkElement;
-            while (button != null && !(button is Button && button.Name == "ConfigureButton"))
-            {
-                button = button.Parent as FrameworkElement;
-            }
-
-            if (button is Button configureButton)
+            if (_popupTimer.Tag is Button configureButton)
             {
                 var popup = FindConfigurationPopup(configureButton);
                 if (popup != null)
                 {
-                    ResetPopupState(popup);
                     popup.IsOpen = true;
                 }
             }
         }
 
+        #endregion
+
+        #region WiFi and Ethernet Button Handlers
+
         private void WifiButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button wifiButton)
+            try
             {
-                var popup = FindParentPopup(wifiButton);
-                if (popup != null)
+                if (!(sender is Button wifiButton))
                 {
-                    SetSelectedConfigType(popup, "WiFi");
-                    UpdateConfigureButtonState(popup);
+                    MessageBox.Show("WiFi button not found!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
+
+                // Get the device model from the button's tag or from the selected device
+                var deviceModel = GetDeviceModelFromButton(wifiButton) ?? ViewModel?.SelectedDevice;
+
+                if (deviceModel?.DeviceInfo == null)
+                {
+                    MessageBox.Show("Please select a device first.", "No Device Selected",
+                                  MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Close any open popup
+                ClosePopupFromButton(wifiButton);
+
+                // Open WiFi configuration window
+                OpenWifiConfiguration(deviceModel);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening WiFi configuration: {ex.Message}",
+                              "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void EthernetButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button ethernetButton)
+            try
             {
-                var popup = FindParentPopup(ethernetButton);
-                if (popup != null)
+                if (!(sender is Button ethernetButton))
                 {
-                    SetSelectedConfigType(popup, "Ethernet");
-                    UpdateConfigureButtonState(popup);
+                    MessageBox.Show("Ethernet button not found!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
+
+                // Get the device model from the button's tag or from the selected device
+                var deviceModel = GetDeviceModelFromButton(ethernetButton) ?? ViewModel?.SelectedDevice;
+
+                if (deviceModel?.DeviceInfo == null)
+                {
+                    MessageBox.Show("Please select a device first.", "No Device Selected",
+                                  MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Close any open popup
+                ClosePopupFromButton(ethernetButton);
+
+                // Open Ethernet configuration window
+                OpenEthernetConfiguration(deviceModel);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening Ethernet configuration: {ex.Message}",
+                              "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void PopupConfigureButton_Click(object sender, RoutedEventArgs e)
+        #endregion
+
+        #region Configuration Window Navigation
+
+        private void OpenWifiConfiguration(DeviceManagementModel deviceModel)
         {
-            if (sender is Button configButton && configButton.Tag is DeviceManagementModel deviceModel)
+            try
             {
-                var popup = FindParentPopup(configButton);
-                if (popup != null)
-                {
-                    var portTextBox = FindChild<TextBox>(popup, "PortTextBox");
-                    var port = portTextBox?.Text ?? "502";
+                var wifiWindow = new DeviceConfigWifiWindow(deviceModel.DeviceInfo.IP, deviceModel.DeviceInfo.MAC);
+                wifiWindow.Owner = Window.GetWindow(this);
+                wifiWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                wifiWindow.Title = $"Configure WiFi - {deviceModel.DeviceInfo.DeviceName} ({deviceModel.DeviceInfo.IP})";
+                wifiWindow.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening WiFi configuration: {ex.Message}",
+                              "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
 
-                    popup.IsOpen = false;
-
-                    ConfigureDevice(deviceModel, _selectedConfigType, port);
-                }
+        private void OpenEthernetConfiguration(DeviceManagementModel deviceModel)
+        {
+            try
+            {
+                var ethernetWindow = new DeviceConfigEthernetWindow(deviceModel.DeviceInfo.IP, deviceModel.DeviceInfo.MAC);
+                ethernetWindow.Owner = Window.GetWindow(this);
+                ethernetWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                ethernetWindow.Title = $"Configure Ethernet - {deviceModel.DeviceInfo.DeviceName} ({deviceModel.DeviceInfo.IP})";
+                ethernetWindow.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening Ethernet configuration: {ex.Message}",
+                              "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -185,259 +242,86 @@ namespace testing1.Views
 
         #region Helper Methods
 
-        private Popup FindConfigurationPopup(Button configureButton)
+        private DeviceManagementModel GetDeviceModelFromButton(Button button)
         {
-            var grid = configureButton.Parent as Grid;
-            return grid?.FindName("ConfigurationPopup") as Popup;
+            // Try to get device model from button's DataContext or Tag
+            if (button.DataContext is DeviceManagementModel deviceModel)
+                return deviceModel;
+
+            if (button.Tag is DeviceManagementModel taggedModel)
+                return taggedModel;
+
+            return null;
         }
 
-        private Popup FindParentPopup(FrameworkElement element)
+        private void ClosePopupFromButton(Button button)
         {
-            var parent = element.Parent;
+            var popup = FindParentPopup(button);
+            if (popup != null)
+            {
+                popup.IsOpen = false;
+            }
+        }
+
+        private System.Windows.Controls.Primitives.Popup FindConfigurationPopup(Button configureButton)
+        {
+            // The popup is in the same Grid as the configure button
+            var parent = configureButton.Parent;
             while (parent != null)
             {
-                if (parent is Popup popup)
-                    return popup;
-                parent = (parent as FrameworkElement)?.Parent;
+                if (parent is Grid grid)
+                {
+                    foreach (UIElement child in grid.Children)
+                    {
+                        if (child is System.Windows.Controls.Primitives.Popup popup && popup.Name == "ConfigurationPopup")
+                        {
+                            return popup;
+                        }
+                    }
+                }
+                parent = System.Windows.LogicalTreeHelper.GetParent(parent);
             }
             return null;
         }
 
-        private void SetSelectedConfigType(Popup popup, string configType)
+        private System.Windows.Controls.Primitives.Popup FindParentPopup(DependencyObject element)
         {
-            _selectedConfigType = configType;
-            _isConfigurationTypeSelected = true;
-
-            // Update button visual states
-            var wifiButton = FindChild<Button>(popup, "WifiButton");
-            var ethernetButton = FindChild<Button>(popup, "EthernetButton");
-
-            if (wifiButton != null)
+            // Traverse up the visual tree to find the popup
+            DependencyObject parent = element;
+            while (parent != null)
             {
-                wifiButton.SetValue(Button.TagProperty, configType == "WiFi" ? "Selected" : "");
-            }
-
-            if (ethernetButton != null)
-            {
-                ethernetButton.SetValue(Button.TagProperty, configType == "Ethernet" ? "Selected" : "");
-            }
-        }
-
-        private void UpdateConfigureButtonState(Popup popup)
-        {
-            var configureButton = FindChild<Button>(popup, "PopupConfigureButton");
-            if (configureButton != null)
-            {
-                configureButton.IsEnabled = _isConfigurationTypeSelected;
-
-                // Update visual state
-                if (_isConfigurationTypeSelected)
+                parent = System.Windows.Media.VisualTreeHelper.GetParent(parent);
+                if (parent is System.Windows.Controls.Primitives.Popup popup && popup.Name == "ConfigurationPopup")
                 {
-                    configureButton.Background = new System.Windows.Media.SolidColorBrush(
-                        (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#255DD4"));
-                    configureButton.Foreground = System.Windows.Media.Brushes.White;
-                }
-                else
-                {
-                    configureButton.Background = new System.Windows.Media.SolidColorBrush(
-                        (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#CCCCCC"));
-                    configureButton.Foreground = new System.Windows.Media.SolidColorBrush(
-                        (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#666"));
+                    return popup;
                 }
             }
-        }
-
-        private void ResetPopupState(Popup popup)
-        {
-            _selectedConfigType = "";
-            _isConfigurationTypeSelected = false;
-
-            var wifiButton = FindChild<Button>(popup, "WifiButton");
-            var ethernetButton = FindChild<Button>(popup, "EthernetButton");
-            var configureButton = FindChild<Button>(popup, "PopupConfigureButton");
-
-            if (wifiButton != null)
-            {
-                wifiButton.SetValue(Button.TagProperty, "");
-                wifiButton.Background = System.Windows.Media.Brushes.White;
-                wifiButton.Foreground = new System.Windows.Media.SolidColorBrush(
-                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#333"));
-            }
-
-            if (ethernetButton != null)
-            {
-                ethernetButton.SetValue(Button.TagProperty, "");
-                ethernetButton.Background = System.Windows.Media.Brushes.White;
-                ethernetButton.Foreground = new System.Windows.Media.SolidColorBrush(
-                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#333"));
-            }
-
-            if (configureButton != null)
-            {
-                configureButton.IsEnabled = false;
-                configureButton.Background = new System.Windows.Media.SolidColorBrush(
-                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#CCCCCC"));
-                configureButton.Foreground = new System.Windows.Media.SolidColorBrush(
-                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#666"));
-            }
-
-            var portTextBox = FindChild<TextBox>(popup, "PortTextBox");
-            if (portTextBox != null)
-            {
-                portTextBox.Text = "502";
-            }
-        }
-
-        private T FindChild<T>(DependencyObject parent, string childName) where T : DependencyObject
-        {
-            if (parent == null) return null;
-
-            T foundChild = null;
-            int childrenCount = System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent);
-
-            for (int i = 0; i < childrenCount; i++)
-            {
-                var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
-
-                if (child is T && (child as FrameworkElement)?.Name == childName)
-                {
-                    foundChild = (T)child;
-                    break;
-                }
-
-                foundChild = FindChild<T>(child, childName);
-                if (foundChild != null) break;
-            }
-
-            return foundChild;
+            return null;
         }
 
         #endregion
 
-        private void ConfigureDevice(DeviceManagementModel deviceModel, string configType, string port)
+        #region Temporary Method (Remove after XAML is updated)
+
+        // TODO: Remove this method after updating XAML
+        // This is a temporary placeholder to prevent compile errors
+        private void PopupConfigureButton_Click(object sender, RoutedEventArgs e)
         {
-            if (deviceModel?.DeviceInfo == null)
-            {
-                MessageBox.Show("No device selected or device information is missing.", "Configuration Error",
-                              MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            // Validate that the device IP is available
-            if (string.IsNullOrEmpty(deviceModel.DeviceInfo.IP))
-            {
-                MessageBox.Show("Device IP address is not available.", "Configuration Error",
-                              MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            // Check if device is online before configuring
-            if (deviceModel.DeviceInfo.Status == DeviceStatus.Offline)
-            {
-                var result = MessageBox.Show(
-                    $"Device {deviceModel.DeviceInfo.DeviceName} appears to be offline. Do you want to attempt configuration anyway?",
-                    "Device Offline",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.No)
-                    return;
-            }
-
-            try
-            {
-                Window configWindow = null;
-                string windowTitle = "";
-
-                // Create the appropriate configuration window based on selected type
-                if (configType == "WiFi")
-                {
-                    configWindow = new DeviceConfigWifiWindow(deviceModel.DeviceInfo.IP, deviceModel.DeviceInfo.MAC);
-                    windowTitle = $"Configure WiFi Device - {deviceModel.DeviceInfo.DeviceName} ({deviceModel.DeviceInfo.IP})";
-                }
-                else if (configType == "Ethernet")
-                {
-                    configWindow = new DeviceConfigEthernetWindow(deviceModel.DeviceInfo.IP, deviceModel.DeviceInfo.MAC);
-                    windowTitle = $"Configure Ethernet Device - {deviceModel.DeviceInfo.DeviceName} ({deviceModel.DeviceInfo.IP})";
-                }
-                else
-                {
-                    MessageBox.Show("Please select WiFi or Ethernet configuration type.", "Configuration Error",
-                                  MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                // Set window properties
-                if (configWindow != null)
-                {
-                    configWindow.Owner = Window.GetWindow(this);
-                    configWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                    configWindow.Title = windowTitle;
-
-                    // Set the port if the view model supports it
-                    if (configWindow.DataContext is DeviceConfigViewModel vm && !string.IsNullOrEmpty(port))
-                    {
-                        if (int.TryParse(port, out int portValue))
-                        {
-                            vm.General.Port = portValue;
-                        }
-                    }
-
-                    // Show the configuration dialog
-                    configWindow.ShowDialog();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error opening device configuration: {ex.Message}", "Configuration Error",
-                              MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            // This method should be removed once XAML is updated
+            // The Configure button should be removed from XAML entirely
         }
 
-        // Legacy method for backward compatibility (if still needed)
-        public void ConfigureButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button btn && btn.DataContext is DeviceManagementModel deviceModel)
-            {
-                // For backward compatibility, default to the original configuration window
-                ConfigureDevice(deviceModel, "Legacy", "502");
-            }
-            else
-            {
-                MessageBox.Show("Unable to identify the selected device.", "Configuration Error",
-                              MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-        }
+        #endregion
 
-        // Optional: Handler for double-click on device row to configure
-        private void DeviceListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (ViewModel.SelectedDevice != null)
-            {
-                ConfigureDevice(ViewModel.SelectedDevice, "Legacy", "502");
-            }
-        }
+        #region Event Handlers for XAML Elements
 
         private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Handle selection changed if needed
-        }
-    }
-}
-
-// Extension method for GetViewModel (add this if not already present elsewhere)
-namespace testing1.Extensions
-{
-    public static class ViewExtensions
-    {
-        public static T GetViewModel<T>(this UserControl view) where T : class
-        {
-            return view.DataContext as T;
+            // DataGrid selection is handled automatically through data binding
+            // The ViewModel's SelectedDevice property is updated automatically
         }
 
-        public static T GetViewModel<T>(this Window view) where T : class
-        {
-            return view.DataContext as T;
-        }
+        #endregion
+
     }
 }

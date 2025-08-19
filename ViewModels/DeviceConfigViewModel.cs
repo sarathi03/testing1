@@ -59,6 +59,7 @@ namespace testing1.ViewModels
         public ICommand ReadGeneralCommand { get; }
         public ICommand SendWifiCommand { get; }
         public ICommand ReadWifiCommand { get; }
+        public ICommand ApplyChangesCommand { get; }
         public ICommand ResetCommand { get; }
 
         public DeviceConfigViewModel()
@@ -72,6 +73,15 @@ namespace testing1.ViewModels
             SendGeneralCommand = new RelayCommand(SendGeneral);
             ReadGeneralCommand = new RelayCommand(ReadGeneral);
             ResetCommand = new RelayCommand(ResetDevice);
+            ApplyChangesCommand = new RelayCommand(OnApplyChanges);
+        }
+
+        private void OnApplyChanges()
+        {
+            // Execute each command safely
+            SendWifiCommand?.Execute(null);
+            SendGeneralCommand?.Execute(null);
+            SendRS485Command?.Execute(null);
         }
 
         // RS485 Configuration Methods
@@ -97,7 +107,7 @@ namespace testing1.ViewModels
                 config[6] = RS485.StopBit;
                 _tcpHelper.SendCommand("SETRS485", config);
 
-                MessageBox.Show("RS485 configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                //MessageBox.Show("RS485 configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 _tcpHelper.Disconnect(); // Disconnect after user clicks OK on success message
             }
             catch (Exception ex)
@@ -135,7 +145,7 @@ namespace testing1.ViewModels
                     RS485.StopBit = data[6];
 
                     OnPropertyChanged(nameof(RS485));
-                    MessageBox.Show("RS485 configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    //MessageBox.Show("RS485 configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
@@ -195,7 +205,7 @@ namespace testing1.ViewModels
                 _tcpHelper.SendCommand("SETNW", config);
 
 
-                MessageBox.Show("Ethernet configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                //MessageBox.Show("Ethernet configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 _tcpHelper.Disconnect();
             }
             catch (Exception ex)
@@ -246,7 +256,7 @@ namespace testing1.ViewModels
                 //Ethernet.Port = (ushort)BitConverter.ToInt32(buffer, offset);
                 OnPropertyChanged(nameof(Ethernet));
 
-                MessageBox.Show("Ethernet configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                //MessageBox.Show("Ethernet configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 _tcpHelper.Disconnect(); // Disconnect after user clicks OK on success message
             }
             catch (Exception ex)
@@ -382,7 +392,7 @@ namespace testing1.ViewModels
 
                 _tcpHelper.SendCommand("SETWIFI", config);
 
-                MessageBox.Show("WiFi configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                //MessageBox.Show("WiFi configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 _tcpHelper.Disconnect(); // Disconnect after user clicks OK on success message
             }
             catch (Exception ex)
@@ -461,7 +471,7 @@ namespace testing1.ViewModels
 
                 OnPropertyChanged(nameof(Wifi));
 
-                MessageBox.Show("WiFi configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                //MessageBox.Show("WiFi configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 _tcpHelper.Disconnect(); // Disconnect after user clicks OK on success message
             }
             catch (Exception ex)

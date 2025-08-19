@@ -4,7 +4,8 @@
         xmlns:converters="clr-namespace:testing1.Converters"
         Title="Ethernet Device Configuration" Height="600" Width="800"
         Icon="pack://application:,,,/Images/MachDatumLogo2.png"
-        WindowStartupLocation="CenterOwner" ResizeMode="CanResize">
+        WindowStartupLocation="CenterOwner" ResizeMode="CanResize"
+        Loaded="Window_Loaded">
 
     <Window.Resources>
         <converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
@@ -48,13 +49,22 @@
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Text="Device IP:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Normal"/>
-                        <TextBox Text="{Binding DeviceIp}" Grid.Column="1" Grid.Row="0" Margin="0,0,20,0" IsReadOnly="True" Background="#F5F5F5" FontWeight="Regular"/>
+                        <!-- Row 0 -->
+                        <TextBlock Text="Device IP:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,5"  FontWeight="Normal"/>
+                        <TextBox Text="{Binding DeviceIp}" Grid.Column="1" Grid.Row="0" Margin="0,0,20,5" IsReadOnly="True" Background="#F5F5F5"  FontWeight="Regular"/>
 
-                        <TextBlock Text="MAC Address:" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Normal"/>
-                        <TextBox Text="{Binding MACAddress}" Grid.Column="3" Grid.Row="0" IsReadOnly="True" Background="#F5F5F5" FontWeight="Regular"/>
+                        <TextBlock Text="MAC Address:" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,5"  FontWeight="Normal"/>
+                        <TextBox Text="{Binding MACAddress}" Grid.Column="3" Grid.Row="0" Margin="0,0,0,5" IsReadOnly="True" Background="#F5F5F5" FontWeight="Regular"/>
+
+                        <!-- Row 1 -->
+                        <TextBlock Text="NetMode:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,10,5" FontWeight="Normal"/>
+                        <TextBox Text="Ethernet" Tag="{Binding General.NetMode, Mode=TwoWay}" Grid.Column="1" Grid.Row="1"  Margin="0,0,20,5" IsReadOnly="True" Background="#F5F5F5" FontWeight="Regular" Loaded="EthernetTextBox_Loaded"/>
+
+                        <TextBlock Text="Port:" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,10,5"  FontWeight="Normal"/>
+                        <TextBox Text="502" Grid.Column="3" Grid.Row="1" IsReadOnly="True" Margin="0,0,0,5" Background="#F5F5F5" FontWeight="Regular"/>
                     </Grid>
                 </GroupBox>
 
@@ -112,7 +122,7 @@
                 </GroupBox>
 
                 <!-- General Configuration -->
-                <GroupBox Header="General Configuration" Margin="0,0,0,20" FontFamily="Segoe UI" FontWeight="Bold" FontSize="13">
+                <!--GroupBox Header="General Configuration" Margin="0,0,0,20" FontFamily="Segoe UI" FontWeight="Bold" FontSize="13">
                     <Grid Margin="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -127,23 +137,20 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Text="NetMode:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Normal"/>
-                        <ComboBox Grid.Column="1" Grid.Row="0" Margin="0,0,20,5" SelectedValue="{Binding General.NetMode}" SelectedValuePath="Tag" FontWeight="Regular">
-                            <ComboBoxItem Content="Wifi" Tag="1"/>
-                            <ComboBoxItem Content="Ethernet" Tag="0"/>
-                        </ComboBox>
+                        <TextBox Text="Ethernet" Tag="{Binding General.NetMode, Mode=TwoWay}" Grid.Column="1" Grid.Row="0" Margin="0,0,20,5" IsReadOnly="True" Background="#F5F5F5" FontWeight="Regular" Loaded="EthernetTextBox_Loaded"/>
 
                         <TextBlock Text="Port:" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Normal"/>
-                        <TextBox Text="{Binding General.Port}" Grid.Column="3" Grid.Row="0" Margin="0,0,0,5" FontWeight="Regular"/>
+                        <TextBox Text="{Binding General.Port}" Grid.Column="3" Grid.Row="0" Margin="0,0,0,5" FontWeight="Regular"/-->
 
                         <!-- General Config Buttons -->
-                        <StackPanel Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="4" Orientation="Horizontal" Margin="0,15,0,0">
+                        <!--StackPanel Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="4" Orientation="Horizontal" Margin="0,15,0,0">
                             <Button Content="Read General Config" Command="{Binding ReadGeneralCommand}" FontWeight="SemiBold" FontSize="12"
                                     Background="#255DD4" Foreground="White" Padding="15,8" Margin="0,0,10,0"/>
                             <Button Content="Send General Config" Command="{Binding SendGeneralCommand}" FontWeight="SemiBold" FontSize="12"
                                     Background="#255DD4" Foreground="White" Padding="15,8"/>
                         </StackPanel>
                     </Grid>
-                </GroupBox>
+                </GroupBox-->
 
                 <!-- Ethernet Configuration -->
                 <GroupBox Header="Ethernet Configuration" Margin="0,0,0,20" FontFamily="Segoe UI" FontWeight="Bold" FontSize="13">
@@ -202,5 +209,18 @@
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
+
+        <!-- Close Button -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,130,0">
+            <Button Content="Close" Click="CloseButton_Click" FontWeight="SemiBold" FontSize="12"
+                    Background="#6C757D" Foreground="White" Padding="15,8" Width="80"/>
+        </StackPanel>
+
+        <!-- Apply Changes Button -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Content="Apply Changes" Command="{Binding ApplyChangesCommand}" FontWeight="SemiBold" FontSize="12"
+                    Background="#255DD4" Foreground="White" Padding="15,8" Width="120"/>
+        </StackPanel>
+
     </Grid>
 </Window>

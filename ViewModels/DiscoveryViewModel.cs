@@ -430,7 +430,7 @@ namespace testing1.ViewModels
                 AvailableDevices.Clear();
 
                 var subnets = NetworkHelper.GetAllLocalSubnets();
-                var ports = new List<int> { 1502 };
+                var ports = new List<int> { 502 };
                 var tasks = new List<Task>();
 
                 // Calculate total IPs to scan for progress tracking
@@ -516,7 +516,7 @@ namespace testing1.ViewModels
                 await Task.WhenAll(tasks);
 
                 // Final progress update
-                ScanProgressText = $"Scan completed! Found {foundDevicesCount} devices with open ports 1502";
+                ScanProgressText = $"Scan completed! Found {foundDevicesCount} devices with open ports 502";
 
                 // Show completion message briefly
                 await Task.Delay(2000);

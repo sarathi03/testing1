@@ -117,7 +117,7 @@ namespace testing1.ViewModels
             // Initialize commands
             AddDeviceCommand = new RelayCommand(AddNewDevice);
             RemoveDeviceCommand = new RelayCommand(RemoveSelectedDevice, () => SelectedDevice != null);
-            EditDeviceCommand = new RelayCommand(EditSelectedDevice, () => SelectedDevice != null);
+            EditDeviceCommand = new RelayCommand(EditSelectedDevice);
             RefreshCommand = new RelayCommand(RefreshDevices);
             ClearSearchCommand = new RelayCommand(ClearSearch, () => !string.IsNullOrWhiteSpace(SearchText));
             FilterCommand = new RelayCommand(ShowFilterOptions);
@@ -553,8 +553,7 @@ namespace testing1.ViewModels
                     $"IP Address: {SelectedDevice.DeviceInfo.IP}\n" +
                     $"Location: {SelectedDevice.DeviceInfo.Location}\n" +
                     $"Status: {SelectedDevice.DeviceInfo.Status}\n" +
-                    $"Connection: {SelectedDevice.DeviceInfo.ConnectionStatusText}\n" +
-                    $"Last Seen: {SelectedDevice.DeviceInfo.LastSeen:yyyy-MM-dd HH:mm}",
+                    $"Connection: {SelectedDevice.DeviceInfo.ConnectionStatusText}\n",
                     "Configure Device",
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Information);
