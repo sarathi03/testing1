@@ -3,7 +3,6 @@ using System.Windows;
 using testing1.Models;
 using testing1.ViewModels;
 using testing1.Views;
-using testing1.Extensions;
 
 namespace testing1.Services
 {

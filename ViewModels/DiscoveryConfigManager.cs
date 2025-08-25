@@ -37,11 +37,11 @@ namespace testing1.ViewModels
         {
             try
             {
-                // Prevent duplicate MAC
+                // Prevent duplicate IP addresses (instead of MAC)
                 var existingConfigs = LoadAllDeviceConfigs();
-                if (existingConfigs.Any(cfg => cfg.DeviceInfo?.MAC == device.MAC))
+                if (existingConfigs.Any(cfg => cfg.DeviceInfo?.IP == device.IP))
                 {
-                    MessageBox.Show($"Device with MAC {device.MAC} is already added.", "Duplicate Device", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show($"Device with IP address {device.IP} is already added.", "Duplicate IP Address", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return false;
                 }
 
@@ -57,7 +57,7 @@ namespace testing1.ViewModels
                     ConfigVersion = "1.0"
                 };
 
-                // Generate filename
+                // Generate filename - keep using MAC for filename since it's still a good unique identifier for files
                 string fileName = $"Device_{deviceNumber:D3}_{device.MAC.Replace(".", "_")}.yaml";
                 string filePath = Path.Combine(_configDirectory, fileName);
 
@@ -66,7 +66,6 @@ namespace testing1.ViewModels
 
                 // Write to file
                 File.WriteAllText(filePath, yamlContent);
-
                 return true;
             }
             catch (Exception ex)
@@ -75,7 +74,6 @@ namespace testing1.ViewModels
                 return false;
             }
         }
-
 
         public bool SaveMultipleDeviceConfigs(List<DeviceInfo> devices)
         {

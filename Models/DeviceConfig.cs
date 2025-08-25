@@ -68,7 +68,6 @@ namespace testing1.Models
             CreatedDate = DateTime.Now;
             LastModified = DateTime.Now;
             ConfigVersion = "1.0";
-
         }
 
         public DeviceConfig(DeviceInfo deviceInfo) : this()
@@ -76,10 +75,6 @@ namespace testing1.Models
             DeviceInfo = deviceInfo;
         }
 
-        public void UpdateLastModified()
-        {
-            LastModified = DateTime.Now;
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -114,7 +109,7 @@ namespace testing1.Models
                 OnPropertyChanged();
             }
         }
-
+        
         // Default constructor
         public EnhancedDeviceConfig() : base()
         {

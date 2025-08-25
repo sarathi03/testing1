@@ -68,25 +68,25 @@ namespace testing1.Converters
     /// <summary>
     /// Converts DateTime to formatted string
     /// </summary>
-    public class DateTimeToStringConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value is DateTime dateTime)
-            {
-                string format = parameter?.ToString() ?? "yyyy-MM-dd HH:mm:ss";
-                return dateTime.ToString(format);
-            }
-            return string.Empty;
-        }
+    //public class DateTimeToStringConverter : IValueConverter
+    //{
+    //    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    //    {
+    //        if (value is DateTime dateTime)
+    //        {
+    //            string format = parameter?.ToString() ?? "yyyy-MM-dd HH:mm:ss";
+    //            return dateTime.ToString(format);
+    //        }
+    //        return string.Empty;
+    //    }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value is string stringValue && DateTime.TryParse(stringValue, out DateTime result))
-            {
-                return result;
-            }
-            return DateTime.MinValue;
-        }
-    }
+    //    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    //    {
+    //        if (value is string stringValue && DateTime.TryParse(stringValue, out DateTime result))
+    //        {
+    //            return result;
+    //        }
+    //        return DateTime.MinValue;
+    //    }
+    //}
 }
