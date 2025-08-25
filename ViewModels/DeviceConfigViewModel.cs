@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -21,9 +21,39 @@ namespace testing1.ViewModels
     {
         private TcpClientHelper _tcpHelper;
 
-        public RS485Settings RS485 { get; set; } = new();
-        public EthernetSettings Ethernet { get; set; } = new();
-        public WifiSettings Wifi { get; set; } = new();
+        // Initialize objects with property change notifications
+        private RS485Settings _rs485 = new();
+        public RS485Settings RS485
+        {
+            get => _rs485;
+            set
+            {
+                _rs485 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private EthernetSettings _ethernet = new();
+        public EthernetSettings Ethernet
+        {
+            get => _ethernet;
+            set
+            {
+                _ethernet = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private WifiSettings _wifi = new();
+        public WifiSettings Wifi
+        {
+            get => _wifi;
+            set
+            {
+                _wifi = value;
+                OnPropertyChanged();
+            }
+        }
 
         private GeneralSettings _general = new();
         public GeneralSettings General
@@ -32,7 +62,7 @@ namespace testing1.ViewModels
             set
             {
                 _general = value;
-                OnPropertyChanged(nameof(General));
+                OnPropertyChanged();
             }
         }
 
@@ -61,6 +91,7 @@ namespace testing1.ViewModels
         public ICommand ReadWifiCommand { get; }
         public ICommand ApplyChangesCommand { get; }
         public ICommand ResetCommand { get; }
+        public Action CloseAction { get; set; }
 
         public DeviceConfigViewModel()
         {
@@ -76,12 +107,48 @@ namespace testing1.ViewModels
             ApplyChangesCommand = new RelayCommand(OnApplyChanges);
         }
 
+
         private void OnApplyChanges()
         {
-            // Execute each command safely
-            SendWifiCommand?.Execute(null);
-            SendGeneralCommand?.Execute(null);
-            SendRS485Command?.Execute(null);
+            try
+            {
+                // Execute configurations in the correct order (without reset)
+                // 1. Send RS485 configuration
+                SendRS485Command?.Execute(null);
+
+                // 2. Send General configuration (modified to not reset immediately)
+                SendGeneralCommand?.Execute(null); // New method without reset
+
+                // 3. Send Wi-Fi configuration  
+                SendWifiCommand?.Execute(null);
+
+                // 4. Send Ethernet configuration
+                SendEthernetCommand?.Execute(null);
+
+                // 5. Finally send the Reset command after all configurations
+                MessageBoxResult result = MessageBox.Show(
+                    "All configurations sent successfully.\nReset Device to Apply Configuration\nClick OK to Reset",
+                    "Applied Changes",
+                    MessageBoxButton.OKCancel,
+                    MessageBoxImage.Information
+                );
+
+                if (result == MessageBoxResult.OK)
+                {
+                    ResetDevice(); // Reset only after user confirms
+                    MessageBox.Show("Close the configuration tab", " ", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                    CloseAction?.Invoke();
+                }
+                else
+                {
+                    MessageBox.Show("Configurations sent but device not reset. Changes will take effect after manual reset.",
+                        "Configurations Applied", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error applying changes: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         // RS485 Configuration Methods
@@ -92,28 +159,33 @@ namespace testing1.ViewModels
                 MessageBox.Show("Please enter a valid device IP address.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+
+            TcpClientHelper tcpHelper = null;
             try
             {
-                _tcpHelper = new TcpClientHelper(DeviceIp);
-                if (!_tcpHelper.Connect(DeviceIp))
+                tcpHelper = new TcpClientHelper(DeviceIp);
+                if (!tcpHelper.Connect(DeviceIp))
                 {
-                    MessageBox.Show("Failed to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Failed to connect to device for RS485 config.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
+
                 byte[] config = new byte[7];
                 Buffer.BlockCopy(BitConverter.GetBytes(RS485.BaudRate), 0, config, 0, 4);
                 config[4] = RS485.Parity;
                 config[5] = RS485.DataBit;
                 config[6] = RS485.StopBit;
-                _tcpHelper.SendCommand("SETRS485", config);
 
-                //MessageBox.Show("RS485 configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                _tcpHelper.Disconnect(); // Disconnect after user clicks OK on success message
+                tcpHelper.SendCommand("SETRS485", config);
+                MessageBox.Show("RS485 configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error sending RS485 configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                _tcpHelper?.Disconnect(); // Disconnect on exception (with null check)
+            }
+            finally
+            {
+                tcpHelper?.Disconnect();
             }
         }
 
@@ -125,17 +197,18 @@ namespace testing1.ViewModels
                 return;
             }
 
+            TcpClientHelper tcpHelper = null;
             try
             {
-                _tcpHelper = new TcpClientHelper(DeviceIp);
-                if (!_tcpHelper.Connect(DeviceIp))
+                tcpHelper = new TcpClientHelper(DeviceIp);
+                if (!tcpHelper.Connect(DeviceIp))
                 {
-                    MessageBox.Show("Failed to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Failed to connect to device for reading RS485 config.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                _tcpHelper.SendCommand("GETRS485");
-                var data = _tcpHelper.ReadResponse(7);
+                tcpHelper.SendCommand("GETRS485");
+                var data = tcpHelper.ReadResponse(7);
 
                 if (data.Length >= 7)
                 {
@@ -145,18 +218,20 @@ namespace testing1.ViewModels
                     RS485.StopBit = data[6];
 
                     OnPropertyChanged(nameof(RS485));
-                    //MessageBox.Show("RS485 configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("RS485 configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
                     MessageBox.Show("Invalid response from device.", "Read Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
-
-                _tcpHelper.Disconnect();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error reading RS485 configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                tcpHelper?.Disconnect();
             }
         }
 
@@ -169,12 +244,13 @@ namespace testing1.ViewModels
                 return;
             }
 
+            TcpClientHelper tcpHelper = null;
             try
             {
-                _tcpHelper = new TcpClientHelper(DeviceIp);
-                if (!_tcpHelper.Connect(DeviceIp))
+                tcpHelper = new TcpClientHelper(DeviceIp);
+                if (!tcpHelper.Connect(DeviceIp))
                 {
-                    MessageBox.Show("Failed to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Failed to connect to device for Ethernet config.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -199,18 +275,16 @@ namespace testing1.ViewModels
                 CopyString(Ethernet.DnsMain, 16);
                 CopyString(Ethernet.DnsBackup, 16);
 
-                // Port
-                //BitConverter.GetBytes(Ethernet.Port).CopyTo(config, offset);
-
-                _tcpHelper.SendCommand("SETNW", config);
-
-
-                //MessageBox.Show("Ethernet configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                _tcpHelper.Disconnect();
+                tcpHelper.SendCommand("SETNW", config);
+                MessageBox.Show("Ethernet configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error sending Ethernet configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                tcpHelper?.Disconnect();
             }
         }
 
@@ -221,26 +295,32 @@ namespace testing1.ViewModels
                 MessageBox.Show("Please enter a valid device IP address.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+
+            TcpClientHelper tcpHelper = null;
             try
             {
-                _tcpHelper = new TcpClientHelper(DeviceIp);
-                if (!_tcpHelper.Connect(DeviceIp))
+                tcpHelper = new TcpClientHelper(DeviceIp);
+                if (!tcpHelper.Connect(DeviceIp))
                 {
-                    MessageBox.Show("Failed to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Failed to connect to device for reading Ethernet config.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                _tcpHelper.SendCommand("GETNW");
-                var buffer = _tcpHelper.ReadResponse(84);
+
+                tcpHelper.SendCommand("GETNW");
+                var buffer = tcpHelper.ReadResponse(84);
+
                 if (buffer.Length < 84)
                 {
                     MessageBox.Show("Invalid response from device.", "Read Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    _tcpHelper.Disconnect(); // Disconnect on error
                     return;
                 }
+
                 int offset = 0;
+
                 // Static IP flag
                 Ethernet.IsStatic = BitConverter.ToInt32(buffer, offset) == 1;
                 offset += 4;
+
                 // Helper function to read strings
                 string ReadString(int length)
                 {
@@ -248,21 +328,23 @@ namespace testing1.ViewModels
                     offset += length;
                     return result;
                 }
+
                 Ethernet.IP = ReadString(16);
                 Ethernet.Gateway = ReadString(16);
                 Ethernet.Netmask = ReadString(16);
                 Ethernet.DnsMain = ReadString(16);
                 Ethernet.DnsBackup = ReadString(16);
-                //Ethernet.Port = (ushort)BitConverter.ToInt32(buffer, offset);
-                OnPropertyChanged(nameof(Ethernet));
 
-                //MessageBox.Show("Ethernet configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                _tcpHelper.Disconnect(); // Disconnect after user clicks OK on success message
+                OnPropertyChanged(nameof(Ethernet));
+                MessageBox.Show("Ethernet configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error reading Ethernet configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                _tcpHelper?.Disconnect(); // Disconnect on exception (with null check)
+            }
+            finally
+            {
+                tcpHelper?.Disconnect();
             }
         }
 
@@ -274,28 +356,42 @@ namespace testing1.ViewModels
                 MessageBox.Show("Please enter a valid device IP address.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+
+            // 🚫 Restrict port 1502
+            if (General.Port == 1502)
+            {
+                MessageBox.Show("You cannot apply 1502 port.", "Invalid Port", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            TcpClientHelper tcpHelper = null;
             try
             {
-                _tcpHelper = new TcpClientHelper(DeviceIp);
-                if (!_tcpHelper.Connect(DeviceIp))
+                tcpHelper = new TcpClientHelper(DeviceIp);
+                if (!tcpHelper.Connect(DeviceIp))
                 {
-                    MessageBox.Show("Failed to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Failed to connect to device for General config.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
+
                 byte[] config = new byte[8];
                 Buffer.BlockCopy(BitConverter.GetBytes(General.NetMode), 0, config, 0, 4);
                 Buffer.BlockCopy(BitConverter.GetBytes(General.Port), 0, config, 4, 4);
-                _tcpHelper.SendCommand("SETGEN", config);
+
+                tcpHelper.SendCommand("SETGEN", config);
+
+                // Add success message back but without the reset dialog
                 MessageBox.Show("General configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                _tcpHelper.Disconnect(); // Disconnect after user clicks OK on success message
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error sending General configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                _tcpHelper?.Disconnect(); // Disconnect on exception (with null check)
+            }
+            finally
+            {
+                tcpHelper?.Disconnect();
             }
         }
-
 
         //Read General
         private void ReadGeneral()
@@ -305,16 +401,20 @@ namespace testing1.ViewModels
                 MessageBox.Show("Please enter a valid device IP address.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+
+            TcpClientHelper tcpHelper = null;
             try
             {
-                _tcpHelper = new TcpClientHelper(DeviceIp);
-                if (!_tcpHelper.Connect(DeviceIp))
+                tcpHelper = new TcpClientHelper(DeviceIp);
+                if (!tcpHelper.Connect(DeviceIp))
                 {
-                    MessageBox.Show("Failed to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Failed to connect to device for reading General config.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                _tcpHelper.SendCommand("GETGEN");
-                var data = _tcpHelper.ReadResponse(8);
+
+                tcpHelper.SendCommand("GETGEN");
+                var data = tcpHelper.ReadResponse(8);
+
                 if (data.Length >= 8)
                 {
                     General.NetMode = BitConverter.ToInt32(data, 0);
@@ -326,12 +426,14 @@ namespace testing1.ViewModels
                 {
                     MessageBox.Show("Invalid response from device.", "Read Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
-                _tcpHelper.Disconnect();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error reading General configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                _tcpHelper?.Disconnect(); // Disconnect on exception (with null check)
+            }
+            finally
+            {
+                tcpHelper?.Disconnect();
             }
         }
 
@@ -341,7 +443,7 @@ namespace testing1.ViewModels
         {
             if (string.IsNullOrWhiteSpace(DeviceIp))
             {
-                MessageBox.Show("Please enter a valid device IP address.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please SW enter a valid device IP address.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -420,7 +522,7 @@ namespace testing1.ViewModels
                 _tcpHelper = new TcpClientHelper(DeviceIp);
                 if (!_tcpHelper.Connect(DeviceIp))
                 {
-                    MessageBox.Show("Failed to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Failed RW to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -500,5 +602,7 @@ namespace testing1.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string name = "")
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+
     }
 }

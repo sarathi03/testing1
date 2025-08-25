@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -132,12 +134,18 @@ namespace testing1.Views
 
         #endregion
 
-        #region WiFi and Ethernet Button Handlers
+        #region WiFi and Ethernet Button Handlers - UPDATED FOR IMMEDIATE RESPONSE
 
         private void WifiButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
+                // EMERGENCY: Force close all popups immediately
+                foreach (System.Windows.Controls.Primitives.Popup popup in FindVisualChildren<System.Windows.Controls.Primitives.Popup>(this))
+                {
+                    if (popup.IsOpen) popup.IsOpen = false;
+                }
+
                 if (!(sender is Button wifiButton))
                 {
                     MessageBox.Show("WiFi button not found!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -154,11 +162,8 @@ namespace testing1.Views
                     return;
                 }
 
-                // Close any open popup
-                ClosePopupFromButton(wifiButton);
-
-                // Open WiFi configuration window
-                OpenWifiConfiguration(deviceModel);
+                // Open WiFi configuration immediately (non-blocking)
+                OpenWifiConfigurationImmediate(deviceModel);
             }
             catch (Exception ex)
             {
@@ -171,6 +176,12 @@ namespace testing1.Views
         {
             try
             {
+                // EMERGENCY: Force close all popups immediately
+                foreach (System.Windows.Controls.Primitives.Popup popup in FindVisualChildren<System.Windows.Controls.Primitives.Popup>(this))
+                {
+                    if (popup.IsOpen) popup.IsOpen = false;
+                }
+
                 if (!(sender is Button ethernetButton))
                 {
                     MessageBox.Show("Ethernet button not found!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -187,11 +198,8 @@ namespace testing1.Views
                     return;
                 }
 
-                // Close any open popup
-                ClosePopupFromButton(ethernetButton);
-
-                // Open Ethernet configuration window
-                OpenEthernetConfiguration(deviceModel);
+                // Open Ethernet configuration immediately (non-blocking)
+                OpenEthernetConfigurationImmediate(deviceModel);
             }
             catch (Exception ex)
             {
@@ -202,17 +210,27 @@ namespace testing1.Views
 
         #endregion
 
-        #region Configuration Window Navigation
+        #region Immediate Configuration Window Navigation - UPDATED
 
-        private void OpenWifiConfiguration(DeviceManagementModel deviceModel)
+        private void OpenWifiConfigurationImmediate(DeviceManagementModel deviceModel)
         {
             try
             {
+                // Create window immediately
                 var wifiWindow = new DeviceConfigWifiWindow(deviceModel.DeviceInfo.IP, deviceModel.DeviceInfo.MAC);
                 wifiWindow.Owner = Window.GetWindow(this);
                 wifiWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 wifiWindow.Title = $"Configure WiFi - {deviceModel.DeviceInfo.DeviceName} ({deviceModel.DeviceInfo.IP})";
-                wifiWindow.ShowDialog();
+
+                // Show immediately (non-blocking) - UI responds instantly
+                wifiWindow.Show(); // Changed from ShowDialog() to Show()
+
+                // Bring to front
+                wifiWindow.Activate();
+
+                // Start loading configurations in background (fire and forget)
+                // The window will handle its own loading states
+                _ = LoadWifiConfigurationsInBackground(wifiWindow);
             }
             catch (Exception ex)
             {
@@ -221,15 +239,25 @@ namespace testing1.Views
             }
         }
 
-        private void OpenEthernetConfiguration(DeviceManagementModel deviceModel)
+        private void OpenEthernetConfigurationImmediate(DeviceManagementModel deviceModel)
         {
             try
             {
+                // Create window immediately
                 var ethernetWindow = new DeviceConfigEthernetWindow(deviceModel.DeviceInfo.IP, deviceModel.DeviceInfo.MAC);
                 ethernetWindow.Owner = Window.GetWindow(this);
                 ethernetWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 ethernetWindow.Title = $"Configure Ethernet - {deviceModel.DeviceInfo.DeviceName} ({deviceModel.DeviceInfo.IP})";
-                ethernetWindow.ShowDialog();
+
+                // Show immediately (non-blocking) - UI responds instantly
+                ethernetWindow.Show(); // Changed from ShowDialog() to Show()
+
+                // Bring to front
+                ethernetWindow.Activate();
+
+                // Start loading configurations in background (fire and forget)
+                // The window will handle its own loading states
+                _ = LoadEthernetConfigurationsInBackground(ethernetWindow);
             }
             catch (Exception ex)
             {
@@ -240,7 +268,57 @@ namespace testing1.Views
 
         #endregion
 
-        #region Helper Methods
+        #region Background Configuration Loading - NEW
+
+        private async System.Threading.Tasks.Task LoadWifiConfigurationsInBackground(DeviceConfigWifiWindow wifiWindow)
+        {
+            try
+            {
+                // Let the window handle its own loading
+                // If the window has a method like LoadConfigurationsAsync(), call it here
+                // await wifiWindow.LoadConfigurationsAsync();
+
+                // Or if you need to do loading here and pass data to window:
+                // var configurations = await LoadWifiConfigurationsAsync();
+                // wifiWindow.UpdateConfigurations(configurations);
+            }
+            catch (Exception ex)
+            {
+                // Handle background loading errors
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    MessageBox.Show($"Error loading WiFi configurations: {ex.Message}",
+                                  "Configuration Load Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }));
+            }
+        }
+
+        private async System.Threading.Tasks.Task LoadEthernetConfigurationsInBackground(DeviceConfigEthernetWindow ethernetWindow)
+        {
+            try
+            {
+                // Let the window handle its own loading
+                // If the window has a method like LoadConfigurationsAsync(), call it here
+                // await ethernetWindow.LoadConfigurationsAsync();
+
+                // Or if you need to do loading here and pass data to window:
+                // var configurations = await LoadEthernetConfigurationsAsync();
+                // ethernetWindow.UpdateConfigurations(configurations);
+            }
+            catch (Exception ex)
+            {
+                // Handle background loading errors
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    MessageBox.Show($"Error loading Ethernet configurations: {ex.Message}",
+                                  "Configuration Load Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }));
+            }
+        }
+
+        #endregion
+
+        #region Helper Methods - UPDATED
 
         private DeviceManagementModel GetDeviceModelFromButton(Button button)
         {
@@ -254,13 +332,36 @@ namespace testing1.Views
             return null;
         }
 
-        private void ClosePopupFromButton(Button button)
+        // UPDATED: Immediate popup closure - no delays, multiple methods to ensure closure
+        private void ClosePopupImmediately(Button button)
         {
+            // Method 1: Find popup from button hierarchy
             var popup = FindParentPopup(button);
             if (popup != null)
             {
                 popup.IsOpen = false;
             }
+
+            // Method 2: Find popup using the Configure button approach
+            // Get the configure button that opened this popup
+            var configureButton = FindConfigureButtonFromWifiEthernetButton(button);
+            if (configureButton != null)
+            {
+                var configPopup = FindConfigurationPopup(configureButton);
+                if (configPopup != null)
+                {
+                    configPopup.IsOpen = false;
+                }
+            }
+
+            // Method 3: Force close all popups with "ConfigurationPopup" name
+            CloseAllConfigurationPopups();
+        }
+
+        // Keep original method for backward compatibility
+        private void ClosePopupFromButton(Button button)
+        {
+            ClosePopupImmediately(button);
         }
 
         private System.Windows.Controls.Primitives.Popup FindConfigurationPopup(Button configureButton)
@@ -299,6 +400,73 @@ namespace testing1.Views
             return null;
         }
 
+        // NEW: Find configure button from WiFi/Ethernet button
+        private Button FindConfigureButtonFromWifiEthernetButton(Button wifiEthernetButton)
+        {
+            // The WiFi/Ethernet button is inside the popup, 
+            // we need to find the Configure button that opened this popup
+            var parent = wifiEthernetButton.Parent;
+            while (parent != null)
+            {
+                if (parent is Grid grid)
+                {
+                    // Look for Configure button in the same container
+                    foreach (UIElement child in grid.Children)
+                    {
+                        if (child is Button btn && (btn.Name == "ConfigureButton" || btn.Content?.ToString() == "Configure"))
+                        {
+                            return btn;
+                        }
+                    }
+                }
+                parent = System.Windows.LogicalTreeHelper.GetParent(parent);
+            }
+            return null;
+        }
+
+        // NEW: Helper method to find all visual children of a specific type
+        private static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj == null) yield return (T)Enumerable.Empty<T>();
+
+            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(depObj); i++)
+            {
+                DependencyObject child = System.Windows.Media.VisualTreeHelper.GetChild(depObj, i);
+
+                if (child != null && child is T)
+                    yield return (T)child;
+
+                foreach (T childOfChild in FindVisualChildren<T>(child))
+                    yield return childOfChild;
+            }
+        }
+
+        // NEW: Force close all configuration popups
+        private void CloseAllConfigurationPopups()
+        {
+            CloseAllPopupsInVisualTree(this);
+        }
+
+        // NEW: Recursively find and close all popups
+        private void CloseAllPopupsInVisualTree(DependencyObject parent)
+        {
+            if (parent == null) return;
+
+            int childCount = System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < childCount; i++)
+            {
+                var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+
+                if (child is System.Windows.Controls.Primitives.Popup popup &&
+                    (popup.Name == "ConfigurationPopup" || popup.IsOpen))
+                {
+                    popup.IsOpen = false;
+                }
+
+                CloseAllPopupsInVisualTree(child);
+            }
+        }
+
         #endregion
 
         #region Temporary Method (Remove after XAML is updated)
@@ -322,6 +490,5 @@ namespace testing1.Views
         }
 
         #endregion
-
     }
 }

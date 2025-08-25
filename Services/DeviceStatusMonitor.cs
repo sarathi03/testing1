@@ -17,7 +17,7 @@ namespace testing1.Services
 
         // ✅ Tracks consecutive failures to avoid instant false "Offline"
         private readonly Dictionary<string, int> _failureCounts = new Dictionary<string, int>();
-        private const int FailureThreshold = 3; // Number of failed pings before marking Offline
+        private const int FailureThreshold = 2; // Number of failed pings before marking Offline
 
         public event EventHandler<DeviceStatusChangedEventArgs> DeviceStatusChanged;
 
@@ -83,10 +83,29 @@ namespace testing1.Services
 
             foreach (var device in devicesToCheck)
             {
+                // Check if device still exists in our monitoring list (in case it was removed)
+                bool deviceStillExists;
+                lock (_lockObject)
+                {
+                    deviceStillExists = _devicesToMonitor.Contains(device) && _failureCounts.ContainsKey(device.IP);
+                }
+
+                if (!deviceStillExists)
+                {
+                    // Device was removed during monitoring, skip it
+                    continue;
+                }
+
                 bool pingSuccess = await CheckDeviceStatusAsync(device.IP) == DeviceStatus.Connected;
 
                 lock (_lockObject)
                 {
+                    // Double-check device still exists after async operation
+                    if (!_devicesToMonitor.Contains(device) || !_failureCounts.ContainsKey(device.IP))
+                    {
+                        continue; // Device was removed during ping, skip
+                    }
+
                     if (pingSuccess)
                     {
                         _failureCounts[device.IP] = 0; // reset failure count
@@ -106,22 +125,26 @@ namespace testing1.Services
                     }
                     else
                     {
-                        _failureCounts[device.IP]++;
-
-                        // Change to Offline only if failures cross threshold
-                        if (_failureCounts[device.IP] >= FailureThreshold &&
-                            device.Status != DeviceStatus.Offline)
+                        // Safely increment failure count
+                        if (_failureCounts.ContainsKey(device.IP))
                         {
-                            var oldStatus = device.Status;
-                            device.Status = DeviceStatus.Offline;
-                            device.LastSeen = DateTime.Now;
+                            _failureCounts[device.IP]++;
 
-                            DeviceStatusChanged?.Invoke(this, new DeviceStatusChangedEventArgs
+                            // Change to Offline only if failures cross threshold
+                            if (_failureCounts[device.IP] >= FailureThreshold &&
+                                device.Status != DeviceStatus.Offline)
                             {
-                                Device = device,
-                                OldStatus = oldStatus,
-                                NewStatus = DeviceStatus.Offline
-                            });
+                                var oldStatus = device.Status;
+                                device.Status = DeviceStatus.Offline;
+                                device.LastSeen = DateTime.Now;
+
+                                DeviceStatusChanged?.Invoke(this, new DeviceStatusChangedEventArgs
+                                {
+                                    Device = device,
+                                    OldStatus = oldStatus,
+                                    NewStatus = DeviceStatus.Offline
+                                });
+                            }
                         }
                     }
                 }

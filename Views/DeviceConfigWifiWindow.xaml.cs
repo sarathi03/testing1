@@ -4,18 +4,27 @@ using testing1.ViewModels;
 
 namespace testing1.Views
 {
-    public partial class DeviceConfigWifiWindow : Window   // 👈 Keep it as Window
+    public partial class DeviceConfigWifiWindow : Window
     {
         private DeviceConfigViewModel vm;
 
         public DeviceConfigWifiWindow(string deviceIp = null, string macAddress = null)
         {
             InitializeComponent();
+
+            // Create the view model only once
             vm = new DeviceConfigViewModel();
 
-            if (!string.IsNullOrEmpty(deviceIp)) vm.DeviceIp = deviceIp;
-            if (!string.IsNullOrEmpty(macAddress)) vm.MACAddress = macAddress;
+            // Set the close action to allow the ViewModel to close the window
+            vm.CloseAction = () => this.Close();
 
+            // Set the properties if provided
+            if (!string.IsNullOrEmpty(deviceIp))
+                vm.DeviceIp = deviceIp;
+            if (!string.IsNullOrEmpty(macAddress))
+                vm.MACAddress = macAddress;
+
+            // Set the DataContext
             DataContext = vm;
         }
 
@@ -23,7 +32,7 @@ namespace testing1.Views
         {
             if (sender is TextBox tb)
             {
-                tb.Tag = 1; // force binded value
+                tb.Tag = 1; // force bound value
             }
         }
 
@@ -32,18 +41,29 @@ namespace testing1.Views
             this.Close();
         }
 
-        // 👇 Auto read configs when window opens
+        // Auto read configs when window opens
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            // Call RS485, Ethernet, and Wifi read commands once
-            if (vm.ReadRS485Command.CanExecute(null))
-                vm.ReadRS485Command.Execute(null);
+            // Call read commands when window loads with error handling
+            try
+            {
+                if (vm?.ReadGeneralCommand?.CanExecute(null) == true)
+                    vm.ReadGeneralCommand.Execute(null);
 
-            if (vm.ReadEthernetCommand.CanExecute(null))
-                vm.ReadEthernetCommand.Execute(null);
+                if (vm?.ReadRS485Command?.CanExecute(null) == true)
+                    vm.ReadRS485Command.Execute(null);
 
-            if (vm.ReadWifiCommand.CanExecute(null))
-                vm.ReadWifiCommand.Execute(null);
+                if (vm?.ReadEthernetCommand?.CanExecute(null) == true)
+                    vm.ReadEthernetCommand.Execute(null);
+
+                if (vm?.ReadWifiCommand?.CanExecute(null) == true)
+                    vm.ReadWifiCommand.Execute(null);
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show($"Error loading initial configuration: {ex.Message}",
+                    "Initialization Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
     }
-}
+}   

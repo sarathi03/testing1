@@ -62,12 +62,12 @@
 
                         <!-- Row 1 -->
 
-                        <TextBlock Text="NetMode:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,10,5" FontWeight="Normal"/>
+                        <TextBlock Text="Network Mode:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,10,5" FontWeight="Normal"/>
                         <TextBox Text="Wifi" Tag="{Binding General.NetMode, Mode=TwoWay}" Grid.Column="1" Grid.Row="1" Margin="0,0,20,5" IsReadOnly="True" Background="#F5F5F5" FontWeight="Regular" Loaded="WifiTextBox_Loaded"/>
 
 
                         <TextBlock Text="Port:" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,10,5" FontWeight="Normal"/>
-                        <TextBox Text="502" Grid.Column="3" Grid.Row="1" IsReadOnly="True" Margin="0,0,0,5" Background="#F5F5F5" FontWeight="Regular"/>
+                        <TextBox Text="{Binding General.Port}" Grid.Column="3" Grid.Row="1" Margin="0,0,0,5" FontWeight="Regular"/>
                     </Grid>
                 </GroupBox>
 
@@ -87,7 +87,7 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Text="Baud Rate:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Normal"/>
-                        <ComboBox Grid.Column="1" Grid.Row="0" Margin="0,0,20,5" SelectedValue="{Binding RS485.BaudRate}" SelectedValuePath="Tag" FontWeight="Regular">
+                        <ComboBox Grid.Column="1" Grid.Row="0" Margin="0,0,20,5" SelectedValue="{Binding RS485.BaudRate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Tag" FontWeight="Regular">
                             <ComboBoxItem Content="9600" Tag="9600"/>
                             <ComboBoxItem Content="19200" Tag="19200"/>
                             <ComboBoxItem Content="38400" Tag="38400"/>
@@ -96,20 +96,22 @@
                         </ComboBox>
 
                         <TextBlock Text="Parity:" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Normal"/>
-                        <ComboBox Grid.Column="3" Grid.Row="0" Margin="0,0,0,5" SelectedValue="{Binding RS485.Parity}" SelectedValuePath="Tag" FontWeight="Regular">
+                        <ComboBox Grid.Column="3" Grid.Row="0" Margin="0,0,0,5" SelectedValue="{Binding RS485.Parity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Tag" FontWeight="Regular">
                             <ComboBoxItem Content="None" Tag="0"/>
                             <ComboBoxItem Content="Odd" Tag="3"/>
                             <ComboBoxItem Content="Even" Tag="2"/>
                         </ComboBox>
 
                         <TextBlock Text="Data Bits:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
-                        <ComboBox Grid.Column="1" Grid.Row="1" Margin="0,5,20,5" SelectedValue="{Binding RS485.DataBit}" SelectedValuePath="Tag" FontWeight="Regular">
+                        <ComboBox Grid.Column="1" Grid.Row="1" Margin="0,5,20,5" SelectedValue="{Binding RS485.DataBit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Tag" FontWeight="Regular">
+                            <ComboBoxItem Content="5" Tag="0"/>
+                            <ComboBoxItem Content="6" Tag="1"/>
                             <ComboBoxItem Content="7" Tag="2"/>
                             <ComboBoxItem Content="8" Tag="3"/>
                         </ComboBox>
 
                         <TextBlock Text="Stop Bits:" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
-                        <ComboBox Grid.Column="3" Grid.Row="1" Margin="0,5,0,5" SelectedValue="{Binding RS485.StopBit}" SelectedValuePath="Tag" FontWeight="Regular">
+                        <ComboBox Grid.Column="3" Grid.Row="1" Margin="0,5,0,5" SelectedValue="{Binding RS485.StopBit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Tag" FontWeight="Regular">
                             <ComboBoxItem Content="1" Tag="1"/>
                             <ComboBoxItem Content="2" Tag="2"/>
                         </ComboBox>
@@ -180,14 +182,14 @@
                         <TextBlock Text="SSID:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding Wifi.SSID}" Grid.Column="1" Grid.Row="1" Margin="0,5,20,5" FontWeight="Regular"/>
 
-                        <TextBlock Text="DNS Main:" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
+                        <TextBlock Text="Primary DNS:" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding Wifi.DNS_main}" Grid.Column="3" Grid.Row="1" Margin="0,5,0,5" FontWeight="Regular"
                                  Style="{StaticResource DisabledInputStyle}"/>
 
                         <TextBlock Text="Password:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding Wifi.Password}" Grid.Column="1" Grid.Row="2" Margin="0,5,20,5" FontWeight="Regular"/>
 
-                        <TextBlock Text="DNS Backup:" Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
+                        <TextBlock Text="Secondary DNS:" Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding Wifi.DNS_backup}" Grid.Column="3" Grid.Row="2" Margin="0,5,0,5" FontWeight="Regular"
                                  Style="{StaticResource DisabledInputStyle}"/>
 
@@ -214,10 +216,10 @@
                 </GroupBox>
 
                 <!-- Reset Buttons -->
-                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                <!--StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                     <Button Content="Reset Device" Command="{Binding ResetCommand}" FontWeight="SemiBold" FontSize="12"
                             Background="#255DD4" Foreground="White" Padding="15,8" Margin="0,0,10,0"/>
-                </StackPanel>
+                </StackPanel-->
             </StackPanel>
         </ScrollViewer>
 

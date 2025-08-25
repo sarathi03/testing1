@@ -34,6 +34,8 @@
             <TextBlock Text="Ethernet Device Configuration" FontSize="24" FontWeight="Bold" Margin="0,-13,0,1" FontFamily="Segoe UI"/>
             <TextBlock Text="Configure RS485 and Ethernet settings for the selected device" FontSize="14" Foreground="Gray" FontFamily="Segoe UI"/>
         </StackPanel>
+        
+        
 
         <!-- Main Content -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -53,18 +55,19 @@
                         </Grid.RowDefinitions>
 
                         <!-- Row 0 -->
-                        <TextBlock Text="Device IP:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,5"  FontWeight="Normal"/>
-                        <TextBox Text="{Binding DeviceIp}" Grid.Column="1" Grid.Row="0" Margin="0,0,20,5" IsReadOnly="True" Background="#F5F5F5"  FontWeight="Regular"/>
+                        <TextBlock Text="Device IP:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,5" FontWeight="Normal"/>
+                        <TextBox Text="{Binding DeviceIp, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="0" Margin="0,0,20,5" IsReadOnly="True" Background="#F5F5F5" FontWeight="Regular"/>
 
-                        <TextBlock Text="MAC Address:" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,5"  FontWeight="Normal"/>
-                        <TextBox Text="{Binding MACAddress}" Grid.Column="3" Grid.Row="0" Margin="0,0,0,5" IsReadOnly="True" Background="#F5F5F5" FontWeight="Regular"/>
+                        <TextBlock Text="MAC Address:" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,5" FontWeight="Normal"/>
+                        <TextBox Text="{Binding MACAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="3" Grid.Row="0" Margin="0,0,0,5" IsReadOnly="True" Background="#F5F5F5" FontWeight="Regular"/>
 
                         <!-- Row 1 -->
-                        <TextBlock Text="NetMode:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,10,5" FontWeight="Normal"/>
+                        <!-- Row 1 -->
+                        <TextBlock Text="Network Mode:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,10,5" FontWeight="Normal"/>
                         <TextBox Text="Ethernet" Tag="{Binding General.NetMode, Mode=TwoWay}" Grid.Column="1" Grid.Row="1"  Margin="0,0,20,5" IsReadOnly="True" Background="#F5F5F5" FontWeight="Regular" Loaded="EthernetTextBox_Loaded"/>
 
-                        <TextBlock Text="Port:" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,10,5"  FontWeight="Normal"/>
-                        <TextBox Text="502" Grid.Column="3" Grid.Row="1" IsReadOnly="True" Margin="0,0,0,5" Background="#F5F5F5" FontWeight="Regular"/>
+                        <TextBlock Text="Port:" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,10,5" FontWeight="Normal"/>
+                        <TextBox Text="{Binding General.Port, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="3" Grid.Row="1" Margin="0,0,0,5" FontWeight="Regular"/>
                     </Grid>
                 </GroupBox>
 
@@ -84,7 +87,7 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Text="Baud Rate:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Normal"/>
-                        <ComboBox Grid.Column="1" Grid.Row="0" Margin="0,0,20,5" SelectedValue="{Binding RS485.BaudRate}" SelectedValuePath="Tag" FontWeight="Regular">
+                        <ComboBox Grid.Column="1" Grid.Row="0" Margin="0,0,20,5" SelectedValue="{Binding RS485.BaudRate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Tag" FontWeight="Regular">
                             <ComboBoxItem Content="9600" Tag="9600"/>
                             <ComboBoxItem Content="19200" Tag="19200"/>
                             <ComboBoxItem Content="38400" Tag="38400"/>
@@ -93,20 +96,22 @@
                         </ComboBox>
 
                         <TextBlock Text="Parity:" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Normal"/>
-                        <ComboBox Grid.Column="3" Grid.Row="0" Margin="0,0,0,5" SelectedValue="{Binding RS485.Parity}" SelectedValuePath="Tag" FontWeight="Regular">
+                        <ComboBox Grid.Column="3" Grid.Row="0" Margin="0,0,0,5" SelectedValue="{Binding RS485.Parity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Tag" FontWeight="Regular">
                             <ComboBoxItem Content="None" Tag="0"/>
                             <ComboBoxItem Content="Odd" Tag="3"/>
                             <ComboBoxItem Content="Even" Tag="2"/>
                         </ComboBox>
 
                         <TextBlock Text="Data Bits:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
-                        <ComboBox Grid.Column="1" Grid.Row="1" Margin="0,5,20,5" SelectedValue="{Binding RS485.DataBit}" SelectedValuePath="Tag" FontWeight="Regular">
+                        <ComboBox Grid.Column="1" Grid.Row="1" Margin="0,5,20,5" SelectedValue="{Binding RS485.DataBit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Tag" FontWeight="Regular">
+                            <ComboBoxItem Content="5" Tag="0"/>
+                            <ComboBoxItem Content="6" Tag="1"/>
                             <ComboBoxItem Content="7" Tag="2"/>
                             <ComboBoxItem Content="8" Tag="3"/>
                         </ComboBox>
 
                         <TextBlock Text="Stop Bits:" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
-                        <ComboBox Grid.Column="3" Grid.Row="1" Margin="0,5,0,5" SelectedValue="{Binding RS485.StopBit}" SelectedValuePath="Tag" FontWeight="Regular">
+                        <ComboBox Grid.Column="3" Grid.Row="1" Margin="0,5,0,5" SelectedValue="{Binding RS485.StopBit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Tag" FontWeight="Regular">
                             <ComboBoxItem Content="1" Tag="1"/>
                             <ComboBoxItem Content="2" Tag="2"/>
                         </ComboBox>
@@ -120,37 +125,6 @@
                         </StackPanel>
                     </Grid>
                 </GroupBox>
-
-                <!-- General Configuration -->
-                <!--GroupBox Header="General Configuration" Margin="0,0,0,20" FontFamily="Segoe UI" FontWeight="Bold" FontSize="13">
-                    <Grid Margin="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Text="NetMode:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Normal"/>
-                        <TextBox Text="Ethernet" Tag="{Binding General.NetMode, Mode=TwoWay}" Grid.Column="1" Grid.Row="0" Margin="0,0,20,5" IsReadOnly="True" Background="#F5F5F5" FontWeight="Regular" Loaded="EthernetTextBox_Loaded"/>
-
-                        <TextBlock Text="Port:" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Normal"/>
-                        <TextBox Text="{Binding General.Port}" Grid.Column="3" Grid.Row="0" Margin="0,0,0,5" FontWeight="Regular"/-->
-
-                        <!-- General Config Buttons -->
-                        <!--StackPanel Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="4" Orientation="Horizontal" Margin="0,15,0,0">
-                            <Button Content="Read General Config" Command="{Binding ReadGeneralCommand}" FontWeight="SemiBold" FontSize="12"
-                                    Background="#255DD4" Foreground="White" Padding="15,8" Margin="0,0,10,0"/>
-                            <Button Content="Send General Config" Command="{Binding SendGeneralCommand}" FontWeight="SemiBold" FontSize="12"
-                                    Background="#255DD4" Foreground="White" Padding="15,8"/>
-                        </StackPanel>
-                    </Grid>
-                </GroupBox-->
 
                 <!-- Ethernet Configuration -->
                 <GroupBox Header="Ethernet Configuration" Margin="0,0,0,20" FontFamily="Segoe UI" FontWeight="Bold" FontSize="13">
@@ -170,26 +144,26 @@
                         </Grid.RowDefinitions>
 
                         <CheckBox Content="Static IP Configuration" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4" 
-                                  IsChecked="{Binding Ethernet.IsStatic}" Margin="0,0,0,10" FontWeight="SemiBold"/>
+                                  IsChecked="{Binding Ethernet.IsStatic, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" FontWeight="SemiBold"/>
 
                         <TextBlock Text="IP Address:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
-                        <TextBox Text="{Binding Ethernet.IP}" Grid.Column="1" Grid.Row="1" Margin="0,5,20,5" FontWeight="Regular" 
+                        <TextBox Text="{Binding Ethernet.IP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="1" Margin="0,5,20,5" FontWeight="Regular" 
                                  Style="{StaticResource DisabledInputStyle}"/>
 
                         <TextBlock Text="Gateway:" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
-                        <TextBox Text="{Binding Ethernet.Gateway}" Grid.Column="3" Grid.Row="1" Margin="0,5,0,5" FontWeight="Regular"
+                        <TextBox Text="{Binding Ethernet.Gateway, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="3" Grid.Row="1" Margin="0,5,0,5" FontWeight="Regular"
                                  Style="{StaticResource DisabledInputStyle}"/>
 
                         <TextBlock Text="Netmask:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
-                        <TextBox Text="{Binding Ethernet.Netmask}" Grid.Column="1" Grid.Row="2" Margin="0,5,20,5" FontWeight="Regular"
+                        <TextBox Text="{Binding Ethernet.Netmask, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="2" Margin="0,5,20,5" FontWeight="Regular"
                                  Style="{StaticResource DisabledInputStyle}"/>
 
-                        <TextBlock Text="DNS Backup:" Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
-                        <TextBox Text="{Binding Ethernet.DnsBackup}" Grid.Column="3" Grid.Row="2" Margin="0,5,0,5" FontWeight="Regular"
+                        <TextBlock Text="Secondary DNS:" Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
+                        <TextBox Text="{Binding Ethernet.DnsBackup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="3" Grid.Row="2" Margin="0,5,0,5" FontWeight="Regular"
                                  Style="{StaticResource DisabledInputStyle}"/>
 
-                        <TextBlock Text="DNS Primary:" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
-                        <TextBox Text="{Binding Ethernet.DnsMain}" Grid.Column="1" Grid.Row="3" Margin="0,5,20,5" FontWeight="Regular"
+                        <TextBlock Text="Primary DNS:" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
+                        <TextBox Text="{Binding Ethernet.DnsMain, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="3" Margin="0,5,20,5" FontWeight="Regular"
                                  Style="{StaticResource DisabledInputStyle}"/>
 
                         <!-- Ethernet Buttons -->
@@ -201,12 +175,6 @@
                         </StackPanel>
                     </Grid>
                 </GroupBox>
-
-                <!-- Reset Buttons -->
-                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                    <Button Content="Reset Device" Command="{Binding ResetCommand}" FontWeight="SemiBold" FontSize="12"
-                            Background="#255DD4" Foreground="White" Padding="15,8" Margin="0,0,10,0"/>
-                </StackPanel>
             </StackPanel>
         </ScrollViewer>
 
