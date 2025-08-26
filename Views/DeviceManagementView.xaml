@@ -159,12 +159,71 @@
             </Style.Triggers>
         </Style>
 
+        <!--Placeholder Text Configuration-->
+        <Style x:Key="SearchTextBoxWithPlaceholderStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#BDC3C7"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="5,3"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="3">
+
+                                <!-- This is the actual text input area -->
+                                <ScrollViewer x:Name="PART_ContentHost" 
+                                      Margin="{TemplateBinding Padding}"
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      Background="Transparent"
+                                      BorderThickness="0"/>
+                            </Border>
+
+                            <!-- Placeholder Text -->
+                            <TextBlock Text="  Search for an IP, MAC, Location"
+                               Foreground="#999999"
+                               Margin="{TemplateBinding Padding}"
+                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                               FontFamily="{TemplateBinding FontFamily}"
+                               FontSize="{TemplateBinding FontSize}"
+                               IsHitTestVisible="False">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource TemplatedParent}}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource TemplatedParent}}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
         <!-- TextBox Style for Search -->
         <Style x:Key="SearchTextBoxStyle" TargetType="TextBox">
             <Setter Property="BorderBrush" Value="#BDC3C7"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="8,5"/>
             <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
     </UserControl.Resources>
@@ -185,9 +244,11 @@
                    FontFamily="Segoe UI"
                    Margin="0,-15,0,20"
                    Foreground="Black"/>
+        
+        
 
         <!-- Search and Action Bar -->
-        <Grid Grid.Row="1" Margin="0,0,0,15">
+        <Grid Grid.Row="1" Margin="0,0,0,20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -206,8 +267,8 @@
                          Width="300" 
                          Height="37"
                          FontFamily="Segoe UI"
-                         FontSize="14"
-                         Style="{StaticResource SearchTextBoxStyle}"/>
+                         FontSize="13"
+                         Style="{StaticResource SearchTextBoxWithPlaceholderStyle}"/>
 
                 <Button Command="{Binding FilterCommand}"
                         Background="Transparent"

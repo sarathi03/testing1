@@ -175,6 +175,13 @@ namespace testing1.ViewModels
         {
             try
             {
+                // Check if General config uses port 1502 before proceeding
+                if (General.Port == 1502)
+                {
+                    MessageBox.Show("You cannot apply 1502 port.\nTry to use different Port", "Invalid Port", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return; // Stop execution completely
+                }
+
                 // Execute configurations in the correct order (without reset)
                 // 1. Send RS485 configuration
                 SendRS485Command?.Execute(null);
@@ -199,7 +206,7 @@ namespace testing1.ViewModels
                 if (result == MessageBoxResult.OK)
                 {
                     ResetDevice(); // Reset only after user confirms
-                    MessageBox.Show("Close the configuration tab", " ", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                    MessageBox.Show("Close the configuration tab if changes in Network Mode\nIf IP changed Again add the device", " ", MessageBoxButton.OK, MessageBoxImage.Information);
                     CloseAction?.Invoke();
                 }
                 else
@@ -420,11 +427,11 @@ namespace testing1.ViewModels
             }
 
             // 🚫 Restrict port 1502
-            if (General.Port == 1502)
-            {
-                MessageBox.Show("You cannot apply 1502 port.", "Invalid Port", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+            //if (General.Port == 1502)
+            //{
+            //    MessageBox.Show("You cannot apply 1502 port.", "Invalid Port", MessageBoxButton.OK, MessageBoxImage.Warning);
+            //    return;
+            //}
 
             TcpClientHelper tcpHelper = null;
             try
@@ -657,7 +664,7 @@ namespace testing1.ViewModels
 
             _tcpHelper.Disconnect();
 
-            MessageBox.Show("Device reset success", "Reset Done", MessageBoxButton.OK, MessageBoxImage.Information);
+            //MessageBox.Show("Device reset success", "Reset Done", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

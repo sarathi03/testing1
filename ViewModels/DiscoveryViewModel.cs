@@ -429,13 +429,20 @@ namespace testing1.ViewModels
                 ScanProgressText = "Initializing scan...";
                 AvailableDevices.Clear();
 
-                var subnets = NetworkHelper.GetAllLocalSubnets();
+                var allSubnets = NetworkHelper.GetAllLocalSubnets();
+
+                // OPTION 1: Deduplicate subnets by subnet string to prevent duplicate scanning
+                var uniqueSubnets = allSubnets
+                    .GroupBy(s => s.subnet)
+                    .Select(g => g.First())
+                    .ToList();
+
                 var ports = new List<int> { 502 };
                 var tasks = new List<Task>();
 
-                // Calculate total IPs to scan for progress tracking
+                // Calculate total IPs to scan for progress tracking using unique subnets
                 int totalIPs = 0;
-                foreach (var (localIp, subnet) in subnets)
+                foreach (var (localIp, subnet) in uniqueSubnets)
                 {
                     var ips = NetworkHelper.GetAllIPsInSubnet(localIp, subnet)
                         .Where(ip => ip.ToString() != localIp && !ip.ToString().EndsWith(".1"));
@@ -447,7 +454,8 @@ namespace testing1.ViewModels
                 int scannedCount = 0;
                 int foundDevicesCount = 0;
 
-                foreach (var (localIp, subnet) in subnets)
+                // Scan only unique subnets
+                foreach (var (localIp, subnet) in uniqueSubnets)
                 {
                     var ips = NetworkHelper.GetAllIPsInSubnet(localIp, subnet)
                         .Where(ip => ip.ToString() != localIp && !ip.ToString().EndsWith(".1"));
