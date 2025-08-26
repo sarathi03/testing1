@@ -21,6 +21,36 @@ namespace testing1.ViewModels
     {
         private TcpClientHelper _tcpHelper;
 
+        // Loading state properties
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                _isLoading = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ShowContent));
+                OnPropertyChanged(nameof(ShowLoadingSpinner));
+            }
+        }
+
+        private bool _hasData;
+        public bool HasData
+        {
+            get => _hasData;
+            set
+            {
+                _hasData = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ShowContent));
+            }
+        }
+
+        // Computed properties for UI visibility
+        public bool ShowLoadingSpinner => IsLoading;
+        public bool ShowContent => !IsLoading && HasData;
+
         // Initialize objects with property change notifications
         private RS485Settings _rs485 = new();
         public RS485Settings RS485
@@ -107,6 +137,39 @@ namespace testing1.ViewModels
             ApplyChangesCommand = new RelayCommand(OnApplyChanges);
         }
 
+        // New method to load all configurations with loading state
+        public async Task LoadAllConfigurationsAsync()
+        {
+            IsLoading = true;
+            HasData = false;
+
+            try
+            {
+                await Task.Run(() =>
+                {
+                    // Execute all read commands
+                    if (ReadGeneralCommand.CanExecute(null))
+                        ReadGeneralCommand.Execute(null);
+                    if (ReadRS485Command.CanExecute(null))
+                        ReadRS485Command.Execute(null);
+                    if (ReadEthernetCommand.CanExecute(null))
+                        ReadEthernetCommand.Execute(null);
+                    if (ReadWifiCommand.CanExecute(null))
+                        ReadWifiCommand.Execute(null);
+                });
+
+                HasData = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading configurations: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                HasData = false;
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
 
         private void OnApplyChanges()
         {
@@ -177,7 +240,7 @@ namespace testing1.ViewModels
                 config[6] = RS485.StopBit;
 
                 tcpHelper.SendCommand("SETRS485", config);
-                MessageBox.Show("RS485 configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                //MessageBox.Show("RS485 configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -218,7 +281,7 @@ namespace testing1.ViewModels
                     RS485.StopBit = data[6];
 
                     OnPropertyChanged(nameof(RS485));
-                    MessageBox.Show("RS485 configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    //MessageBox.Show("RS485 configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
@@ -276,7 +339,7 @@ namespace testing1.ViewModels
                 CopyString(Ethernet.DnsBackup, 16);
 
                 tcpHelper.SendCommand("SETNW", config);
-                MessageBox.Show("Ethernet configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                //MessageBox.Show("Ethernet configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -336,7 +399,7 @@ namespace testing1.ViewModels
                 Ethernet.DnsBackup = ReadString(16);
 
                 OnPropertyChanged(nameof(Ethernet));
-                MessageBox.Show("Ethernet configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                //MessageBox.Show("Ethernet configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -347,7 +410,6 @@ namespace testing1.ViewModels
                 tcpHelper?.Disconnect();
             }
         }
-
 
         private void SendGeneral()
         {
@@ -381,7 +443,7 @@ namespace testing1.ViewModels
                 tcpHelper.SendCommand("SETGEN", config);
 
                 // Add success message back but without the reset dialog
-                MessageBox.Show("General configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                //MessageBox.Show("General configuration sent successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -420,7 +482,7 @@ namespace testing1.ViewModels
                     General.NetMode = BitConverter.ToInt32(data, 0);
                     General.Port = BitConverter.ToInt32(data, 4);
                     OnPropertyChanged(nameof(General));
-                    MessageBox.Show("General configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    //MessageBox.Show("General configuration read successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
@@ -437,13 +499,12 @@ namespace testing1.ViewModels
             }
         }
 
-
         // WiFi Configuration Methods
         private void SendWifi()
         {
             if (string.IsNullOrWhiteSpace(DeviceIp))
             {
-                MessageBox.Show("Please SW enter a valid device IP address.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please enter a valid device IP address.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -522,7 +583,7 @@ namespace testing1.ViewModels
                 _tcpHelper = new TcpClientHelper(DeviceIp);
                 if (!_tcpHelper.Connect(DeviceIp))
                 {
-                    MessageBox.Show("Failed RW to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Failed to connect to device.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -602,7 +663,5 @@ namespace testing1.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string name = "")
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-
-
     }
 }

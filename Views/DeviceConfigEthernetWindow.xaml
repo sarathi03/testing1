@@ -10,6 +10,7 @@
     <Window.Resources>
         <converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
 
         <!-- Style for disabled controls -->
         <Style x:Key="DisabledInputStyle" TargetType="TextBox">
@@ -34,11 +35,48 @@
             <TextBlock Text="Ethernet Device Configuration" FontSize="24" FontWeight="Bold" Margin="0,-13,0,1" FontFamily="Segoe UI"/>
             <TextBlock Text="Configure RS485 and Ethernet settings for the selected device" FontSize="14" Foreground="Gray" FontFamily="Segoe UI"/>
         </StackPanel>
-        
-        
+
+        <!-- Loading Overlay -->
+        <Grid Grid.Row="1" Visibility="{Binding ShowLoadingSpinner, Converter={StaticResource BoolToVisibilityConverter}}" 
+              Background="#F0F0F0" Panel.ZIndex="999">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                <!-- Simple Loading Spinner -->
+                <Ellipse Width="40" Height="40" Margin="0,0,0,20" 
+                         Stroke="#255DD4" StrokeThickness="4" 
+                         Fill="Transparent" 
+                         StrokeDashArray="20 10">
+                    <Ellipse.RenderTransform>
+                        <RotateTransform x:Name="SpinnerTransform" CenterX="20" CenterY="20"/>
+                    </Ellipse.RenderTransform>
+                    <Ellipse.Triggers>
+                        <EventTrigger RoutedEvent="Ellipse.Loaded">
+                            <BeginStoryboard>
+                                <Storyboard RepeatBehavior="Forever">
+                                    <DoubleAnimation Storyboard.TargetName="SpinnerTransform"
+                                                   Storyboard.TargetProperty="Angle"
+                                                   From="0" To="360" Duration="0:0:1"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </Ellipse.Triggers>
+                </Ellipse>
+
+                <TextBlock Text="Loading device configuration..." 
+                           FontSize="16" 
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           Foreground="#255DD4"/>
+                <TextBlock Text="Please wait while we fetch the settings from your device..." 
+                           FontSize="12" 
+                           HorizontalAlignment="Center"
+                           Foreground="Gray"
+                           Margin="0,5,0,0"/>
+            </StackPanel>
+        </Grid>
 
         <!-- Main Content -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Visibility="{Binding ShowContent, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel>
                 <!-- Device Information -->
                 <GroupBox Header="Device Information" Margin="0,0,0,20" FontWeight="Bold" FontSize="13">
@@ -61,7 +99,6 @@
                         <TextBlock Text="MAC Address:" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center" Margin="0,0,10,5" FontWeight="Normal"/>
                         <TextBox Text="{Binding MACAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="3" Grid.Row="0" Margin="0,0,0,5" IsReadOnly="True" Background="#F5F5F5" FontWeight="Regular"/>
 
-                        <!-- Row 1 -->
                         <!-- Row 1 -->
                         <TextBlock Text="Network Mode:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,10,5" FontWeight="Normal"/>
                         <TextBox Text="Ethernet" Tag="{Binding General.NetMode, Mode=TwoWay}" Grid.Column="1" Grid.Row="1"  Margin="0,0,20,5" IsReadOnly="True" Background="#F5F5F5" FontWeight="Regular" Loaded="EthernetTextBox_Loaded"/>
@@ -154,16 +191,16 @@
                         <TextBox Text="{Binding Ethernet.Gateway, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="3" Grid.Row="1" Margin="0,5,0,5" FontWeight="Regular"
                                  Style="{StaticResource DisabledInputStyle}"/>
 
-                        <TextBlock Text="Netmask:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
-                        <TextBox Text="{Binding Ethernet.Netmask, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="2" Margin="0,5,20,5" FontWeight="Regular"
+                        <TextBlock Text="Netmask:" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
+                        <TextBox Text="{Binding Ethernet.Netmask, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="3" Margin="0,5,20,5" FontWeight="Regular"
                                  Style="{StaticResource DisabledInputStyle}"/>
 
                         <TextBlock Text="Secondary DNS:" Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
                         <TextBox Text="{Binding Ethernet.DnsBackup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="3" Grid.Row="2" Margin="0,5,0,5" FontWeight="Regular"
                                  Style="{StaticResource DisabledInputStyle}"/>
 
-                        <TextBlock Text="Primary DNS:" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
-                        <TextBox Text="{Binding Ethernet.DnsMain, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="3" Margin="0,5,20,5" FontWeight="Regular"
+                        <TextBlock Text="Primary DNS:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Margin="0,5,10,0" FontWeight="Normal"/>
+                        <TextBox Text="{Binding Ethernet.DnsMain, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="2" Margin="0,5,20,5" FontWeight="Regular"
                                  Style="{StaticResource DisabledInputStyle}"/>
 
                         <!-- Ethernet Buttons -->
