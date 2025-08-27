@@ -7,6 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Images\1.png" />
 	  <None Remove="Images\configure.png" />
 	  <None Remove="Images\funnel-plus.png" />
 	  <None Remove="Images\MachDatumLogo2.png" />
@@ -20,6 +21,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Resource Include="Images\1.png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Resource>
 	  <Resource Include="Images\configure.png">
 	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	  </Resource>

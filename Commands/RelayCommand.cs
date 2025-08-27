@@ -7,6 +7,12 @@ namespace testing1.Commands
     {
         private readonly Action _execute;
         private readonly Func<bool> _canExecute;
+        private Action<object> executeCloseCommand;
+
+        public RelayCommand(Action<object> executeCloseCommand)
+        {
+            this.executeCloseCommand = executeCloseCommand;
+        }
 
         public RelayCommand(Action execute, Func<bool> canExecute = null)
         {

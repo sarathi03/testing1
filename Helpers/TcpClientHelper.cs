@@ -25,8 +25,8 @@ namespace testing1.Helpers
             try
             {
                 _client = new TcpClient();
-                _client.Connect(ip, port); // Fixed: use _client instead of client, and ip parameter instead of ipAddress
-                _stream = _client.GetStream(); // Fixed: removed asterisks
+                _client.Connect(ip, port); // Fixed: removed asterisk and use correct parameter
+                _stream = _client.GetStream(); // Fixed: removed asterisk
                 return true;
             }
             catch
@@ -50,6 +50,7 @@ namespace testing1.Helpers
         public void SendCommand(string cmd, byte[] data = null)
         {
             if (_stream == null) throw new InvalidOperationException("Not connected to TCP stream.");
+
             var cmdBytes = Encoding.ASCII.GetBytes(cmd);
             var payload = data == null ? cmdBytes : cmdBytes.Concat(data).ToArray();
             _stream.Write(payload, 0, payload.Length);
@@ -58,8 +59,10 @@ namespace testing1.Helpers
         public byte[] ReadResponse(int length)
         {
             if (_stream == null) throw new InvalidOperationException("Not connected to TCP stream.");
+
             byte[] buffer = new byte[length];
             int totalRead = 0;
+
             while (totalRead < length)
             {
                 int read = _stream.Read(buffer, totalRead, length - totalRead);
@@ -67,10 +70,11 @@ namespace testing1.Helpers
                     throw new Exception("Connection closed before all data was received.");
                 totalRead += read;
             }
+
             return buffer;
         }
 
         // Property to check if connected
-        public bool IsConnected => _client?.Connected == true && _stream != null;
+        public bool IsConnected => _client?.Connected == true && _stream != null; // Fixed: removed asterisks
     }
 }

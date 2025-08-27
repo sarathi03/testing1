@@ -429,13 +429,20 @@ namespace testing1.ViewModels
                 ScanProgressText = "Initializing scan...";
                 AvailableDevices.Clear();
 
-                var subnets = NetworkHelper.GetAllLocalSubnets();
-                var ports = new List<int> { 1502 };
+                var allSubnets = NetworkHelper.GetAllLocalSubnets();
+
+                // OPTION 1: Deduplicate subnets by subnet string to prevent duplicate scanning
+                var uniqueSubnets = allSubnets
+                    .GroupBy(s => s.subnet)
+                    .Select(g => g.First())
+                    .ToList();
+
+                var ports = new List<int> { 502 };
                 var tasks = new List<Task>();
 
-                // Calculate total IPs to scan for progress tracking
+                // Calculate total IPs to scan for progress tracking using unique subnets
                 int totalIPs = 0;
-                foreach (var (localIp, subnet) in subnets)
+                foreach (var (localIp, subnet) in uniqueSubnets)
                 {
                     var ips = NetworkHelper.GetAllIPsInSubnet(localIp, subnet)
                         .Where(ip => ip.ToString() != localIp && !ip.ToString().EndsWith(".1"));
@@ -447,7 +454,8 @@ namespace testing1.ViewModels
                 int scannedCount = 0;
                 int foundDevicesCount = 0;
 
-                foreach (var (localIp, subnet) in subnets)
+                // Scan only unique subnets
+                foreach (var (localIp, subnet) in uniqueSubnets)
                 {
                     var ips = NetworkHelper.GetAllIPsInSubnet(localIp, subnet)
                         .Where(ip => ip.ToString() != localIp && !ip.ToString().EndsWith(".1"));
@@ -516,7 +524,7 @@ namespace testing1.ViewModels
                 await Task.WhenAll(tasks);
 
                 // Final progress update
-                ScanProgressText = $"Scan completed! Found {foundDevicesCount} devices with open ports 502/1502";
+                ScanProgressText = $"Scan completed! Found {foundDevicesCount} devices with open ports 502";
 
                 // Show completion message briefly
                 await Task.Delay(2000);
@@ -578,7 +586,6 @@ namespace testing1.ViewModels
             var selectedDevices = AvailableDevices.Where(d => d.IsSelected)
                                                  .Select(ConvertToDeviceInfo)
                                                  .ToList();
-
             if (selectedDevices.Count == 0)
             {
                 System.Windows.MessageBox.Show("No devices selected. Please select devices to save.", "Information",
@@ -586,19 +593,21 @@ namespace testing1.ViewModels
                 return;
             }
 
-            // Check for duplicates
+            // Check for duplicate IP addresses (instead of MAC addresses)
             var existingConfigs = _configManager.LoadAllDeviceConfigs();
-            var alreadyAdded = selectedDevices.Where(d => existingConfigs.Any(cfg => cfg.DeviceInfo?.MAC == d.MAC)).ToList();
+            var alreadyAdded = selectedDevices.Where(d => existingConfigs.Any(cfg => cfg.DeviceInfo?.IP == d.IP)).ToList();
+
             if (alreadyAdded.Any())
             {
-                string macs = string.Join(", ", alreadyAdded.Select(d => d.MAC));
-                System.Windows.MessageBox.Show($"The following devices are already added and will not be added again: {macs}", "Duplicate Devices", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                string ips = string.Join(", ", alreadyAdded.Select(d => d.IP));
+                System.Windows.MessageBox.Show($"The following IP addresses are already configured and will not be added again: {ips}",
+                    "Duplicate IP Addresses", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
                 selectedDevices = selectedDevices.Where(d => !alreadyAdded.Contains(d)).ToList();
             }
+
             if (selectedDevices.Count == 0) return;
 
             bool success = _configManager.SaveMultipleDeviceConfigs(selectedDevices);
-
             System.Diagnostics.Debug.WriteLine($"Adding {selectedDevices.Count} selected devices... Success: {success}");
         }
 

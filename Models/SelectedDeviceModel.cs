@@ -33,35 +33,35 @@ namespace testing1.Models
             }
         }
 
-        public bool IsSelected
-        {
-            get => _isSelected;
-            set
-            {
-                if (_isSelected != value)
-                {
-                    _isSelected = value;
-                    OnPropertyChanged();
-                    if (value)
-                    {
-                        SelectedTime = DateTime.Now;
-                    }
-                }
-            }
-        }
+        //public bool IsSelected
+        //{
+        //    get => _isSelected;
+        //    set
+        //    {
+        //        if (_isSelected != value)
+        //        {
+        //            _isSelected = value;
+        //            OnPropertyChanged();
+        //            if (value)
+        //            {
+        //                SelectedTime = DateTime.Now;
+        //            }
+        //        }
+        //    }
+        //}
 
-        public DateTime SelectedTime
-        {
-            get => _selectedTime;
-            private set
-            {
-                if (_selectedTime != value)
-                {
-                    _selectedTime = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        //public DateTime SelectedTime
+        //{
+        //    get => _selectedTime;
+        //    private set
+        //    {
+        //        if (_selectedTime != value)
+        //        {
+        //            _selectedTime = value;
+        //            OnPropertyChanged();
+        //        }
+        //    }
+        //}
 
         public event PropertyChangedEventHandler PropertyChanged;
 

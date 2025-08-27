@@ -71,6 +71,53 @@
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
 
+        <!-- Fixed Popup Button Styles - Removed problematic bindings -->
+        <Style x:Key="PopupOptionButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="80"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Margin" Value="5,2"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#333"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F0F8FF"/>
+                    <Setter Property="BorderBrush" Value="#255DD4"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Fixed Configure Button Style - Removed problematic bindings -->
+        <Style x:Key="PopupConfigureButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="100"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Margin" Value="0,10,0,5"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="#CCCCCC"/>
+            <Setter Property="Foreground" Value="#666"/>
+            <Setter Property="IsEnabled" Value="False"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1E4DB7"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Configuration Popup Style -->
+        <Style x:Key="ConfigurationPopupStyle" TargetType="Popup">
+            <Setter Property="AllowsTransparency" Value="True"/>
+            <Setter Property="PopupAnimation" Value="Fade"/>
+            <Setter Property="Placement" Value="Mouse"/>
+            <Setter Property="PlacementTarget" Value="{Binding RelativeSource={RelativeSource TemplatedParent}}"/>
+        </Style>
+
         <!-- DataGrid Row Style - Complete removal of selection highlighting -->
         <Style x:Key="DataGridRowStyle" TargetType="DataGridRow">
             <Setter Property="Background" Value="White"/>
@@ -112,12 +159,71 @@
             </Style.Triggers>
         </Style>
 
+        <!--Placeholder Text Configuration-->
+        <Style x:Key="SearchTextBoxWithPlaceholderStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#BDC3C7"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="5,3"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="3">
+
+                                <!-- This is the actual text input area -->
+                                <ScrollViewer x:Name="PART_ContentHost" 
+                                      Margin="{TemplateBinding Padding}"
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      Background="Transparent"
+                                      BorderThickness="0"/>
+                            </Border>
+
+                            <!-- Placeholder Text -->
+                            <TextBlock Text="  Search for an IP, MAC, Location"
+                               Foreground="#999999"
+                               Margin="{TemplateBinding Padding}"
+                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                               FontFamily="{TemplateBinding FontFamily}"
+                               FontSize="{TemplateBinding FontSize}"
+                               IsHitTestVisible="False">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource TemplatedParent}}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource TemplatedParent}}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
         <!-- TextBox Style for Search -->
         <Style x:Key="SearchTextBoxStyle" TargetType="TextBox">
             <Setter Property="BorderBrush" Value="#BDC3C7"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="8,5"/>
             <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
     </UserControl.Resources>
@@ -130,8 +236,6 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-
-
         <!-- Header -->
         <TextBlock Grid.Row="0" 
                    Text="Device Management Panel" 
@@ -140,11 +244,12 @@
                    FontFamily="Segoe UI"
                    Margin="0,-15,0,20"
                    Foreground="Black"/>
+        
+        
 
         <!-- Search and Action Bar -->
-        <Grid Grid.Row="1" Margin="0,0,0,15">
+        <Grid Grid.Row="1" Margin="0,0,0,20">
             <Grid.ColumnDefinitions>
-
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
@@ -162,8 +267,8 @@
                          Width="300" 
                          Height="37"
                          FontFamily="Segoe UI"
-                         FontSize="14"
-                         Style="{StaticResource SearchTextBoxStyle}"/>
+                         FontSize="13"
+                         Style="{StaticResource SearchTextBoxWithPlaceholderStyle}"/>
 
                 <Button Command="{Binding FilterCommand}"
                         Background="Transparent"
@@ -173,7 +278,6 @@
                        Width="20" 
                        Height="20"
                        Opacity="0.8"/>
-                    <!-- Lower opacity makes it appear more delicate -->
                 </Button>
             </StackPanel>
 
@@ -189,6 +293,8 @@
                         Foreground="Black"/>
             </StackPanel>
         </Grid>
+        
+        
 
         <!-- Devices DataGrid -->
         <DataGrid Grid.Row="2" 
@@ -211,10 +317,9 @@
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="DataGridColumnHeader">
                     <Setter Property="FontFamily" Value="Segoe UI"/>
-                    <!-- or your preferred font -->
                     <Setter Property="FontSize" Value="14"/>
                     <Setter Property="FontWeight" Value="SemiBold"/>
-                    <!-- or your preferred size -->
+                    
                 </Style>
             </DataGrid.ColumnHeaderStyle>
 
@@ -232,16 +337,22 @@
 
                 <!-- IP Address Column -->
                 <DataGridTextColumn Header="IP Address" 
-                                    Binding="{Binding DeviceInfo.IP}" 
-                                    Width="120" FontFamily="Segoe UI" FontSize="14"
-                                    IsReadOnly="True"/>
+                    Binding="{Binding DeviceInfo.IP}" 
+                    Width="120" FontFamily="Segoe UI" FontSize="14" 
+                    IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
 
                 <!-- Device Name Column (Editable) -->
                 <DataGridTemplateColumn Header="Device Name" Width="180">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding DeviceInfo.DeviceName}" 
-                                       VerticalAlignment="Center" FontFamily="Segoe UI" FontSize="14" Margin="0,-12,0,0"
+                                       VerticalAlignment="Center" FontFamily="Segoe UI" FontSize="14" Margin="0,0,0,0"
                                        Padding="5,0"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -258,10 +369,11 @@
 
                 <!-- Location Column (Editable) -->
                 <DataGridTemplateColumn Header="Location" Width="150">
+                    
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding DeviceInfo.Location}" 
-                                       FontFamily="Segoe UI" FontSize="14" Margin="0,-12,0,0"
+                                       FontFamily="Segoe UI" FontSize="14" Margin="0,0,0,0"
                                        VerticalAlignment="Center"
                                        Padding="5,0"/>
                         </DataTemplate>
@@ -279,37 +391,141 @@
 
                 <!-- MAC Address Column -->
                 <DataGridTextColumn Header="MAC Address" 
-                                    Binding="{Binding DeviceInfo.MAC}" 
-                                    FontFamily="Segoe UI" FontSize="14"
-                                    Width="130"
-                                    IsReadOnly="True"/>
+                    Binding="{Binding DeviceInfo.MAC}" 
+                    FontFamily="Segoe UI" FontSize="14" 
+                    Width="130"
+                    IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
 
-                <!-- Actions Column -->
-                <!-- Actions Column -->
+                <!-- Connection Status Column -->
+                <DataGridTemplateColumn Header="Connected via" Width="130" CanUserSort="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <!-- Connection Status Indicator -->
+                                <Ellipse Width="11" Height="11" Margin="0,0,5,0" VerticalAlignment="Center">
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Fill" Value="Gray"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding DeviceInfo.ConnectionStatus}" Value="Ethernet">
+                                                    <Setter Property="Fill" Value="Green"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding DeviceInfo.ConnectionStatus}" Value="WiFi">
+                                                    <Setter Property="Fill" Value="Green"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding DeviceInfo.ConnectionStatus}" Value="NotConnected">
+                                                    <Setter Property="Fill" Value="Gray"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
+
+                                <!-- Connection Status Text -->
+                                <TextBlock Text="{Binding DeviceInfo.ConnectionStatusText}" 
+                           FontFamily="Segoe UI" 
+                           FontSize="13"
+                           VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="Gray"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding DeviceInfo.ConnectionStatus}" Value="Ethernet">
+                                                    <Setter Property="Foreground" Value="Black"/>
+                                                    <Setter Property="FontWeight" Value="Normal"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding DeviceInfo.ConnectionStatus}" Value="WiFi">
+                                                    <Setter Property="Foreground" Value="Black"/>
+                                                    <Setter Property="FontWeight" Value="Normal"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding DeviceInfo.ConnectionStatus}" Value="NotConnected">
+                                                    <Setter Property="Foreground" Value="Gray"/>
+                                                    <Setter Property="FontWeight" Value="Normal"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <!-- Fixed Actions Column with Configuration Popup -->
                 <DataGridTemplateColumn Header="Actions" Width="180" CanUserSort="False">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <!-- Configure Button with Icon -->
-                                <Button Click="ConfigureButton_Click"
-                        Style="{StaticResource ConfigureButtonStyle}"
-                        Margin="2">
-                                    <StackPanel Orientation="Horizontal">
+                                <!-- Configure Button with Popup -->
+                                <Grid>
+                                    <Button x:Name="Configure"
+                                            FontSize="11"
+                                            Style="{StaticResource ConfigureButtonStyle}"
+                                            Margin="2"
+                                            MouseEnter="ConfigureButton_MouseEnter"
+                                            MouseLeave="ConfigureButton_MouseLeave">
+                                        <TextBlock Text="Configure" VerticalAlignment="Center"/>
+                                    </Button>
 
-                                        <TextBlock Text="Configure" 
-                                   VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button>
+                                    <!-- Fixed Configuration Popup -->
+                                    <Popup x:Name="ConfigurationPopup"
+                                           Style="{StaticResource ConfigurationPopupStyle}"
+                                           PlacementTarget="{Binding ElementName=ConfigureButton}"
+                                           Placement="Bottom"
+                                           HorizontalOffset="-30"
+                                           VerticalOffset="5"
+                                           StaysOpen="False"
+                                           MouseLeave="ConfigurationPopup_MouseLeave">
+                                        <Border Background="White" 
+                                                BorderBrush="#CCCCCC" 
+                                                BorderThickness="1" 
+                                                CornerRadius="5"
+                                                Margin="5">
+                                            <Border.Effect>
+                                                <DropShadowEffect BlurRadius="8" 
+                                                                  ShadowDepth="3" 
+                                                                  Color="#40000000" 
+                                                                  Direction="315"
+                                                                  Opacity="0.3"/>
+                                            </Border.Effect>
+                                            <StackPanel Margin="15,12">
+                                                <TextBlock Text="Are You Configuring to:" 
+                                                           FontWeight="SemiBold" 
+                                                           FontSize="12" 
+                                                           Margin="0,0,0,8"
+                                                           HorizontalAlignment="Center"/>
 
-                                <!-- Remove Button with Icon -->
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                    <Button x:Name="WifiButton" 
+                                                            FontFamily="Segoe UI" FontSize="12" FontWeight="SemiBold"
+                                                            Content="Wi-Fi"
+                                                            Style="{StaticResource PopupOptionButtonStyle}"
+                                                            Click="WifiButton_Click"
+                                                            Tag="{Binding}"/>
+                                                    <Button x:Name="EthernetButton" 
+                                                            Content="Ethernet" 
+                                                            FontFamily="Segoe UI" FontSize="12" FontWeight="SemiBold"
+                                                            Style="{StaticResource PopupOptionButtonStyle}"
+                                                            Click="EthernetButton_Click"
+                                                            Tag="{Binding}"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+                                    </Popup>
+                                </Grid>
+
+                                <!-- Remove Button -->
                                 <Button Command="{Binding DataContext.RemoveDeviceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                        CommandParameter="{Binding}"
-                        Style="{StaticResource RemoveButtonStyle}"
-                        Margin="2">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Remove" 
-                                   VerticalAlignment="Center"/>
-                                    </StackPanel>
+                                        CommandParameter="{Binding}"
+                                        Style="{StaticResource RemoveButtonStyle}"
+                                        Margin="2">
+                                    <TextBlock Text="Remove" VerticalAlignment="Center" FontSize="12"/>
                                 </Button>
                             </StackPanel>
                         </DataTemplate>
@@ -344,7 +560,7 @@
                            FontSize="12"/>
             </StackPanel>
 
-            <!-- Loading Indicator - Using built-in BooleanToVisibilityConverter -->
+            <!-- Loading Indicator -->
             <StackPanel Grid.Column="1" 
                         Orientation="Horizontal" 
                         VerticalAlignment="Center" 
@@ -372,7 +588,7 @@
                 </Border>
             </StackPanel>
 
-            <!-- Selected Device Info - Using DataTrigger instead of NullToVisibilityConverter -->
+            <!-- Selected Device Info -->
             <StackPanel Grid.Column="2" 
                         Orientation="Horizontal" 
                         VerticalAlignment="Center" 
@@ -410,6 +626,7 @@
                            FontSize="12"
                            FontFamily="Segoe UI"/>
             </StackPanel>
+            
         </Grid>
     </Grid>
 </UserControl>

@@ -65,17 +65,13 @@ namespace testing1.Views
 
                 if (success)
                 {
-                    MessageBox.Show($"Successfully saved {selectedDevices.Count} devices to YAML config files.\nConfig saved to: {configManager.GetConfigDirectory()}",
+                    MessageBox.Show($"Successfully saved {selectedDevices.Count} devices to Management Panel",
                         "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                     
                     // Navigate to DeviceManagementView
                     NavigateToDeviceManagementView();
                 }
-                else
-                {
-                    MessageBox.Show("Failed to save devices to YAML config files.",
-                        "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                
             }
         }
 
